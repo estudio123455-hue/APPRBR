@@ -38,6 +38,7 @@ import {
   downloadMarkdownExport,
   parseJsonBackup,
 } from "@/lib/export-utils";
+import { buildContextualFallback } from "@/lib/brainstorm";
 import { useAutoSave } from "@/lib/useAutoSave";
 import { IdeaNodeCard } from "./IdeaNodeCard";
 import { Toolbar } from "@/components/ui/Toolbar";
@@ -112,27 +113,39 @@ function MindMapCanvasInner() {
   const handleBrainstormNode = useCallback(
     async (parentIdea: IdeaNode, mode: BrainstormMode) => {
       try {
-        const response = await fetch("/api/brainstorm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id: parentIdea.id,
-            title: parentIdea.title,
-            content: parentIdea.content,
-            category: parentIdea.category,
-            mode,
-          }),
-        });
+        let subIdeas: BrainstormResponsePayload["subIdeas"] = [];
 
-        if (!response.ok) {
-          throw new Error(`Error HTTP ${response.status}`);
+        try {
+          const response = await fetch("/api/brainstorm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: parentIdea.id,
+              title: parentIdea.title,
+              content: parentIdea.content,
+              category: parentIdea.category,
+              mode,
+            }),
+          });
+
+          if (response.ok) {
+            const data = (await response.json()) as BrainstormResponsePayload;
+            if (Array.isArray(data.subIdeas) && data.subIdeas.length > 0) {
+              subIdeas = data.subIdeas;
+            }
+          }
+        } catch {
+          // Hosting estático (ej. GitHub Pages) sin servidor Node.js: usar fallback local
         }
 
-        const data = (await response.json()) as BrainstormResponsePayload;
-        const subIdeas = data.subIdeas ?? [];
-
+        // Si el endpoint no está disponible (hosting estático) o no devolvió ideas, usar buildContextualFallback en cliente
         if (subIdeas.length === 0) {
-          throw new Error("La respuesta no incluyó sub-ideas válidas.");
+          await new Promise((resolve) => setTimeout(resolve, 600));
+          subIdeas = buildContextualFallback(
+            parentIdea.title,
+            parentIdea.content,
+            mode
+          );
         }
 
         const newGeneratedIds: string[] = [];
