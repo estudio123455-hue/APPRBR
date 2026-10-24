@@ -6,6 +6,7 @@ import ReactFlow, {
   BackgroundVariant,
   Controls,
   MiniMap,
+  MarkerType,
   ReactFlowProvider,
   addEdge,
   useEdgesState,
@@ -19,9 +20,14 @@ import type {
   BrainstormResponsePayload,
   Connection,
   IdeaNode,
+  IdeaNodeColor,
   IdeaNodeInlineUpdates,
 } from "@/types";
-import { INITIAL_CONNECTIONS, INITIAL_IDEA_NODES } from "@/lib/constants";
+import {
+  INITIAL_CONNECTIONS,
+  INITIAL_IDEA_NODES,
+  NODE_COLOR_STYLES,
+} from "@/lib/constants";
 import {
   calculateSpawnPositions,
   createEntityId,
@@ -39,6 +45,7 @@ import {
   parseJsonBackup,
 } from "@/lib/export-utils";
 import { buildContextualFallback } from "@/lib/brainstorm";
+import { LanguageProvider, useLanguage } from "@/lib/i18n";
 import { useAutoSave } from "@/lib/useAutoSave";
 import { IdeaNodeCard } from "./IdeaNodeCard";
 import { Toolbar } from "@/components/ui/Toolbar";
@@ -53,6 +60,7 @@ interface ToastMessage {
 }
 
 function MindMapCanvasInner() {
+  const { language, t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
   const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
@@ -65,7 +73,7 @@ function MindMapCanvasInner() {
     toFlowNodes(INITIAL_IDEA_NODES)
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    toFlowEdges(INITIAL_CONNECTIONS)
+    toFlowEdges(INITIAL_CONNECTIONS, INITIAL_IDEA_NODES)
   );
 
   const showToast = useCallback((type: "success" | "error", text: string) => {
@@ -90,22 +98,68 @@ function MindMapCanvasInner() {
     (id: string, updates: IdeaNodeInlineUpdates) => {
       setNodes((nds) =>
         nds.map((node) => {
-          if (node.id !== id) return node;
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              idea: {
-                ...node.data.idea,
-                ...updates,
-                updatedAt: new Date().toISOString(),
+          if (node.id === id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                idea: {
+                  ...node.data.idea,
+                  ...updates,
+                  updatedAt: new Date().toISOString(),
+                },
               },
-            },
-          };
+            };
+          }
+          // Si cambió el color del nodo padre, propagar armónicamente a sus sub-ideas directas
+          if (updates.color && node.data.idea.parentId === id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                idea: {
+                  ...node.data.idea,
+                  color: updates.color,
+                  updatedAt: new Date().toISOString(),
+                },
+              },
+            };
+          }
+          return node;
         })
       );
+
+      // Si cambió el color temático, actualizar también el color de las ramas (edges) salientes
+      if (updates.color) {
+        const newColor = updates.color;
+        const strokeColor =
+          NODE_COLOR_STYLES[newColor]?.strokeHex ?? "#64748b";
+        setEdges((eds) =>
+          eds.map((edge) => {
+            if (edge.source !== id) return edge;
+            return {
+              ...edge,
+              data: { ...edge.data, color: newColor },
+              style: {
+                ...edge.style,
+                stroke: strokeColor,
+              },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: strokeColor,
+                width: 15,
+                height: 15,
+              },
+            };
+          })
+        );
+      }
+
+      if (updates.imageUrl) {
+        showToast("success", t.toastPhotoAttached);
+      }
     },
-    [setNodes]
+    [setNodes, setEdges, showToast, t.toastPhotoAttached]
   );
 
   const handlersRef = useRef<FlowNodeHandlers>({});
@@ -125,6 +179,8 @@ function MindMapCanvasInner() {
               content: parentIdea.content,
               category: parentIdea.category,
               mode,
+              language,
+              hasImage: Boolean(parentIdea.imageUrl),
             }),
           });
 
@@ -135,16 +191,17 @@ function MindMapCanvasInner() {
             }
           }
         } catch {
-          // Hosting estático (ej. GitHub Pages) sin servidor Node.js: usar fallback local
+          // Hosting estático (GitHub Pages) sin servidor Node.js: usar generador local
         }
 
-        // Si el endpoint no está disponible (hosting estático) o no devolvió ideas, usar buildContextualFallback en cliente
         if (subIdeas.length === 0) {
           await new Promise((resolve) => setTimeout(resolve, 600));
           subIdeas = buildContextualFallback(
             parentIdea.title,
             parentIdea.content,
-            mode
+            mode,
+            parentIdea.color,
+            language
           );
         }
 
@@ -157,6 +214,9 @@ function MindMapCanvasInner() {
           const parentPosition = parentFlowNode
             ? parentFlowNode.position
             : { x: parentIdea.x, y: parentIdea.y };
+          const branchColor: IdeaNodeColor = parentFlowNode
+            ? parentFlowNode.data.idea.color
+            : parentIdea.color;
 
           const existingPositions = currentNodes.map((n) => n.position);
           const spawnPositions = calculateSpawnPositions(
@@ -164,6 +224,13 @@ function MindMapCanvasInner() {
             subIdeas.length,
             existingPositions
           );
+
+          const tagLabel =
+            mode === "visual"
+              ? "vision-ia"
+              : mode === "unblock"
+                ? "unblock-ia"
+                : "sub-idea-ia";
 
           const spawnedFlowNodes = subIdeas.map((sub, index) => {
             const newId = createEntityId("idea");
@@ -179,13 +246,20 @@ function MindMapCanvasInner() {
               title: sub.title,
               content: sub.content,
               category:
-                sub.category ?? (mode === "unblock" ? "question" : "idea"),
-              color: sub.color ?? (mode === "unblock" ? "amber" : "indigo"),
+                sub.category ??
+                (mode === "unblock"
+                  ? "question"
+                  : mode === "visual"
+                    ? "reference"
+                    : "idea"),
+              // Herencia armónica del color temático de la rama padre
+              color: branchColor,
+              parentId: parentIdea.id,
               tags: [
                 {
                   id: createEntityId("tag"),
-                  label: mode === "unblock" ? "desbloqueo-ia" : "sub-idea-ia",
-                  color: mode === "unblock" ? "amber" : "indigo",
+                  label: tagLabel,
+                  color: branchColor,
                 },
               ],
               x: coords.x,
@@ -199,34 +273,37 @@ function MindMapCanvasInner() {
           return [...currentNodes, ...spawnedFlowNodes];
         });
 
-        // Crear conexiones automáticas animadas desde el nodo padre hacia cada sub-idea
+        // Crear conexiones automáticas animadas con el color de la rama del padre
         setEdges((currentEdges) => {
           const newEdges = newGeneratedIds.map((targetId) =>
-            toFlowEdge({
-              id: createEntityId("conn"),
-              source: parentIdea.id,
-              target: targetId,
-              animated: true,
-            })
+            toFlowEdge(
+              {
+                id: createEntityId("conn"),
+                source: parentIdea.id,
+                target: targetId,
+                animated: true,
+                color: parentIdea.color,
+              },
+              parentIdea.color
+            )
           );
           return [...currentEdges, ...newEdges];
         });
 
         showToast(
           "success",
-          mode === "unblock"
-            ? `🎯 ${subIdeas.length} perspectivas anti-bloqueo generadas`
-            : `✨ ${subIdeas.length} sub-ideas desplegadas en abanico`
+          mode === "visual"
+            ? t.toastVisualAnalyzed(subIdeas.length)
+            : mode === "unblock"
+              ? t.toastUnblocked(subIdeas.length)
+              : t.toastExpanded(subIdeas.length)
         );
       } catch (error) {
         console.error("Error al generar sub-ideas con IA:", error);
-        showToast(
-          "error",
-          "No se pudieron generar ideas en este momento. Inténtalo de nuevo."
-        );
+        showToast("error", t.toastAiError);
       }
     },
-    [setNodes, setEdges, showToast]
+    [language, setNodes, setEdges, showToast, t]
   );
 
   const nodeHandlers = useMemo<FlowNodeHandlers>(
@@ -255,7 +332,7 @@ function MindMapCanvasInner() {
   const handleLoadSavedState = useCallback(
     (saved: { nodes: IdeaNode[]; connections: Connection[] }) => {
       setNodes(toFlowNodes(saved.nodes, nodeHandlers));
-      setEdges(toFlowEdges(saved.connections));
+      setEdges(toFlowEdges(saved.connections, saved.nodes));
     },
     [nodeHandlers, setNodes, setEdges]
   );
@@ -266,11 +343,7 @@ function MindMapCanvasInner() {
     onLoadSavedState: handleLoadSavedState,
   });
 
-  // Atajos de teclado globales y ergonomía del lienzo:
-  // - Ctrl+K / Cmd+K: Captura rápida
-  // - Shift+Z: Modo Zen
-  // - Delete / Backspace: Eliminar nodos o conexiones seleccionadas (fuera de inputs)
-  // - Escape: Deseleccionar nodos y conexiones
+  // Atajos de teclado globales y ergonomía del lienzo
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
@@ -314,7 +387,6 @@ function MindMapCanvasInner() {
         return;
       }
 
-      // Si el usuario está escribiendo dentro de un campo editable o hay un modal abierto, ignorar atajos de lienzo
       if (
         isEditableTarget ||
         isQuickCaptureOpen ||
@@ -376,14 +448,44 @@ function MindMapCanvasInner() {
   const onConnect = useCallback(
     (params: FlowConnection) => {
       if (!params.source || !params.target) return;
-      const newEdge = toFlowEdge({
-        id: createEntityId("conn"),
-        source: params.source,
-        target: params.target,
+
+      let sourceColor: IdeaNodeColor = "blue";
+      setNodes((currentNodes) => {
+        const sourceNode = currentNodes.find((n) => n.id === params.source);
+        if (sourceNode) {
+          sourceColor = sourceNode.data.idea.color;
+        }
+        // El nodo hijo conectado hereda armónicamente el color de la rama padre
+        return currentNodes.map((n) => {
+          if (n.id === params.target) {
+            return {
+              ...n,
+              data: {
+                ...n.data,
+                idea: {
+                  ...n.data.idea,
+                  parentId: params.source ?? undefined,
+                  color: sourceColor,
+                },
+              },
+            };
+          }
+          return n;
+        });
       });
+
+      const newEdge = toFlowEdge(
+        {
+          id: createEntityId("conn"),
+          source: params.source,
+          target: params.target,
+          color: sourceColor,
+        },
+        sourceColor
+      );
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [setEdges]
+    [setNodes, setEdges]
   );
 
   /**
@@ -425,15 +527,15 @@ function MindMapCanvasInner() {
     const domainNodes = nodes.map(fromFlowNode);
     const domainConnections = edges.map(fromFlowEdge);
     downloadMarkdownExport(domainNodes, domainConnections);
-    showToast("success", "📄 Documento Markdown (.md) exportado");
-  }, [nodes, edges, showToast]);
+    showToast("success", t.toastMarkdownExported);
+  }, [nodes, edges, showToast, t.toastMarkdownExported]);
 
   const handleExportJson = useCallback(() => {
     const domainNodes = nodes.map(fromFlowNode);
     const domainConnections = edges.map(fromFlowEdge);
     downloadJsonBackup(domainNodes, domainConnections);
-    showToast("success", "💾 Respaldo JSON (.json) descargado");
-  }, [nodes, edges, showToast]);
+    showToast("success", t.toastJsonExported);
+  }, [nodes, edges, showToast, t.toastJsonExported]);
 
   const handleImportJson = useCallback(
     async (file: File) => {
@@ -442,35 +544,36 @@ function MindMapCanvasInner() {
         const { nodes: importedNodes, connections: importedConnections } =
           parseJsonBackup(text);
         setNodes(toFlowNodes(importedNodes, nodeHandlers));
-        setEdges(toFlowEdges(importedConnections));
-        showToast(
-          "success",
-          `✅ Respaldo restaurado (${importedNodes.length} ideas)`
-        );
+        setEdges(toFlowEdges(importedConnections, importedNodes));
+        showToast("success", t.toastJsonImported(importedNodes.length));
       } catch (error) {
         console.error("Error al importar respaldo JSON:", error);
-        showToast(
-          "error",
-          "El archivo seleccionado no es un respaldo válido de Mind Diary."
-        );
+        showToast("error", t.toastJsonImportError);
       }
     },
-    [nodeHandlers, setNodes, setEdges, showToast]
+    [nodeHandlers, setNodes, setEdges, showToast, t]
   );
 
   const handleClearEmpty = useCallback(() => {
     clearSavedState();
     setNodes([]);
     setEdges([]);
-    showToast("success", "🧹 Lienzo limpio y listo para nuevas ideas");
-  }, [clearSavedState, setNodes, setEdges, showToast]);
+    showToast("success", t.toastCleared);
+  }, [clearSavedState, setNodes, setEdges, showToast, t.toastCleared]);
 
   const handleResetTemplate = useCallback(() => {
     clearSavedState();
     setNodes(toFlowNodes(INITIAL_IDEA_NODES, nodeHandlers));
-    setEdges(toFlowEdges(INITIAL_CONNECTIONS));
-    showToast("success", "🔄 Plantilla inicial restaurada");
-  }, [clearSavedState, nodeHandlers, setNodes, setEdges, showToast]);
+    setEdges(toFlowEdges(INITIAL_CONNECTIONS, INITIAL_IDEA_NODES));
+    showToast("success", t.toastTemplateRestored);
+  }, [
+    clearSavedState,
+    nodeHandlers,
+    setNodes,
+    setEdges,
+    showToast,
+    t.toastTemplateRestored,
+  ]);
 
   return (
     <div className="relative h-[100dvh] w-screen overflow-hidden touch-none overscroll-none bg-slate-50">
@@ -533,12 +636,15 @@ function MindMapCanvasInner() {
               ? "translate-y-4 opacity-0 pointer-events-none"
               : "translate-y-0 opacity-100"
           }`}
-          nodeColor="#3b82f6"
+          nodeColor={(n) => {
+            const c = (n.data as { idea?: IdeaNode } | undefined)?.idea?.color;
+            return c ? NODE_COLOR_STYLES[c]?.strokeHex ?? "#3b82f6" : "#3b82f6";
+          }}
           maskColor="rgba(241, 245, 249, 0.7)"
         />
       </ReactFlow>
 
-      {/* Notificación flotante (Toast) para feedback de IA, exportación y errores */}
+      {/* Notificación flotante (Toast) */}
       {toast && (
         <div className="pointer-events-none fixed bottom-20 sm:bottom-6 left-1/2 z-40 w-max max-w-[90vw] -translate-x-1/2 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div
@@ -582,8 +688,10 @@ function MindMapCanvasInner() {
 
 export function MindMapCanvas() {
   return (
-    <ReactFlowProvider>
-      <MindMapCanvasInner />
-    </ReactFlowProvider>
+    <LanguageProvider>
+      <ReactFlowProvider>
+        <MindMapCanvasInner />
+      </ReactFlowProvider>
+    </LanguageProvider>
   );
 }

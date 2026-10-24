@@ -1,9 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { CornerDownLeft, Sparkles, X, Zap } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Camera,
+  CornerDownLeft,
+  Mic,
+  MicOff,
+  Sparkles,
+  X,
+  Zap,
+} from "lucide-react";
 import type { IdeaNode } from "@/types";
 import { createEntityId } from "@/lib/flow-utils";
+import { compressImageFile } from "@/lib/image-utils";
+import { useLanguage } from "@/lib/i18n";
+import { useSpeechToText } from "@/lib/useSpeechToText";
 
 interface QuickCaptureProps {
   isOpen: boolean;
@@ -12,16 +23,28 @@ interface QuickCaptureProps {
 }
 
 /**
- * Cuadro de Captura Rápida Global (Ctrl+K / Cmd+K o botón FAB en móvil).
- * Soporta sintaxis rápida opcional: "Título: Descripción #tag1 #tag2"
+ * Cuadro de Captura Rápida Global (Ctrl+K / Cmd+K o botón FAB en móvil)
+ * con soporte de Reconocimiento de Voz (Speech-to-Text) y Cámara.
  */
 export function QuickCapture({
   isOpen,
   onClose,
   onQuickCreate,
 }: QuickCaptureProps) {
+  const { t, speechLocale } = useLanguage();
   const [value, setValue] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleVoiceTranscript = useCallback((transcript: string) => {
+    setValue((prev) => (prev ? `${prev} ${transcript}` : transcript));
+  }, []);
+
+  const { isListening, toggleListening, stopListening } = useSpeechToText({
+    lang: speechLocale,
+    onTranscript: handleVoiceTranscript,
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -34,14 +57,31 @@ export function QuickCapture({
   if (!isOpen) return null;
 
   const handleClose = () => {
+    if (isListening) stopListening();
     setValue("");
+    setImageUrl(undefined);
     onClose();
+  };
+
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImageFile(file);
+      setImageUrl(compressed);
+    } catch {
+      // ignore
+    } finally {
+      e.target.value = "";
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const raw = value.trim();
-    if (!raw) return;
+    if (!raw && !imageUrl) return;
+
+    if (isListening) stopListening();
 
     // Extraer hashtags opcionales (#tag)
     const tagMatches = Array.from(raw.matchAll(/#([\p{L}\p{N}_-]+)/gu)).map(
@@ -52,7 +92,7 @@ export function QuickCapture({
     // Separar título y contenido si usa ":"
     const colonIndex = cleanText.indexOf(":");
     let title = cleanText;
-    let content = "Capturado rápidamente desde el lienzo.";
+    let content = t.quickCaptureCenterHint;
 
     if (colonIndex > 0) {
       title = cleanText.slice(0, colonIndex).trim();
@@ -72,20 +112,22 @@ export function QuickCapture({
         : [
             {
               id: createEntityId("tag"),
-              label: "rápida",
+              label: "quick",
               color: "blue" as const,
             },
           ];
 
     onQuickCreate({
-      title: title || "Nueva idea",
+      title: title || t.newIdeaBtn,
       content,
       color: "blue",
-      category: "idea",
+      category: imageUrl ? "reference" : "idea",
       tags,
+      imageUrl,
     });
 
     setValue("");
+    setImageUrl(undefined);
     onClose();
   };
 
@@ -102,12 +144,12 @@ export function QuickCapture({
         <div className="flex items-center justify-between border-b border-slate-100 px-4 pt-3 pb-2 sm:hidden">
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-800">
             <Zap className="h-3.5 w-3.5 text-blue-600" />
-            Captura Rápida
+            {t.quickCaptureBtn}
           </span>
           <button
             type="button"
             onClick={handleClose}
-            aria-label="Cerrar captura rápida"
+            aria-label={t.cancelBtn}
             className="rounded-lg p-1.5 text-slate-400 active:bg-slate-100"
           >
             <X className="h-4 w-4" />
@@ -116,7 +158,7 @@ export function QuickCapture({
 
         <form
           onSubmit={handleSubmit}
-          className="relative flex items-center gap-2 px-3 sm:px-0"
+          className="relative flex items-center gap-1.5 px-3 sm:px-0"
         >
           <div className="hidden sm:block pl-4 text-blue-600">
             <Zap className="h-4 w-4" />
@@ -134,18 +176,63 @@ export function QuickCapture({
                 handleClose();
               }
             }}
-            placeholder="Idea: descripción #etiqueta..."
+            placeholder={
+              isListening ? t.voiceListening : t.quickCapturePlaceholder
+            }
             className="w-full bg-transparent px-1 sm:px-3.5 py-3.5 sm:py-4 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
           />
 
-          {/* Botón táctil explícito en móvil + KBD en escritorio */}
+          {/* Botones de Cámara, Micrófono (Speech-to-Text) y Envío */}
           <div className="flex items-center gap-1.5 sm:pr-3.5">
+            {/* Botón Cámara */}
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              title={t.attachPhotoTooltip}
+              aria-label={t.attachPhotoTooltip}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all cursor-pointer ${
+                imageUrl
+                  ? "border-blue-200 bg-blue-50 text-blue-600"
+                  : "border-slate-200/80 bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              }`}
+            >
+              <Camera className="h-4 w-4" />
+            </button>
+
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handlePhotoSelect}
+            />
+
+            {/* Botón Micrófono con animación de pulso rojo mientras escucha */}
+            <button
+              type="button"
+              onClick={toggleListening}
+              title={isListening ? t.voiceStopHint : t.voiceStartHint}
+              aria-label={isListening ? t.voiceStopHint : t.voiceStartHint}
+              className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all cursor-pointer ${
+                isListening
+                  ? "border-rose-300 bg-rose-50 text-rose-600 ring-2 ring-rose-500/25 animate-pulse"
+                  : "border-slate-200/80 bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              }`}
+            >
+              {isListening ? (
+                <MicOff className="h-4 w-4" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
+            </button>
+
             <button
               type="submit"
-              disabled={!value.trim()}
+              disabled={!value.trim() && !imageUrl}
               className="inline-flex min-h-[38px] items-center gap-1 rounded-xl bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition-all active:scale-95 disabled:opacity-40 sm:hidden"
             >
-              <span>Crear</span>
+              <span>{t.createBtn}</span>
             </button>
 
             <kbd className="hidden sm:inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500">
@@ -158,15 +245,42 @@ export function QuickCapture({
           </div>
         </form>
 
+        {/* Previsualización rápida si se adjuntó foto */}
+        {imageUrl && (
+          <div className="flex items-center justify-between border-t border-slate-100 bg-blue-50/30 px-4 py-2">
+            <div className="flex items-center gap-2.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="h-10 w-14 rounded-lg border border-slate-200 object-cover"
+              />
+              <span className="text-xs font-medium text-slate-700">
+                {t.photoLabel}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setImageUrl(undefined)}
+              className="text-xs font-medium text-rose-600 hover:underline cursor-pointer"
+            >
+              {t.photoRemoveBtn}
+            </button>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 border-t border-slate-100 bg-slate-50/70 px-4 py-2.5 text-[11px] text-slate-500">
           <span className="inline-flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-blue-500 shrink-0" />
-            Se colocará en el centro exacto de tu vista actual
+            {isListening ? (
+              <span className="font-semibold text-rose-600">
+                ● {t.voiceListening}
+              </span>
+            ) : (
+              t.quickCaptureCenterHint
+            )}
           </span>
-          <span className="text-slate-400">
-            Usa <code className="text-slate-600">:</code> para descripción y{" "}
-            <code className="text-slate-600">#tag</code> para etiquetas
-          </span>
+          <span className="text-slate-400">{t.quickCaptureSyntaxHint}</span>
         </div>
       </div>
     </div>

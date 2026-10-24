@@ -3,10 +3,12 @@ import type {
   BrainstormMode,
   Connection,
   IdeaNode,
+  IdeaNodeColor,
   IdeaNodeInlineUpdates,
   MindDiaryFlowEdge,
   MindDiaryFlowNode,
 } from "@/types";
+import { NODE_COLOR_STYLES } from "./constants";
 
 export interface FlowNodeHandlers {
   onSelect?: (node: IdeaNode) => void;
@@ -47,10 +49,17 @@ export function toFlowNodes(
 }
 
 /**
- * Convierte un modelo Connection del dominio a un Edge estilizado de React Flow.
+ * Convierte un modelo Connection del dominio a un Edge estilizado de React Flow,
+ * adoptando el color temático de la rama del nodo padre (estilo MindNode).
  */
-export function toFlowEdge(connection: Connection): MindDiaryFlowEdge {
-  const strokeColor = connection.animated ? "#3b82f6" : "#94a3b8";
+export function toFlowEdge(
+  connection: Connection,
+  sourceColor?: IdeaNodeColor
+): MindDiaryFlowEdge {
+  const effectiveColor: IdeaNodeColor =
+    connection.color ?? sourceColor ?? (connection.animated ? "blue" : "slate");
+  const strokeColor =
+    NODE_COLOR_STYLES[effectiveColor]?.strokeHex ?? "#64748b";
 
   return {
     id: connection.id,
@@ -58,25 +67,37 @@ export function toFlowEdge(connection: Connection): MindDiaryFlowEdge {
     target: connection.target,
     label: connection.label,
     animated: connection.animated ?? false,
+    data: { color: effectiveColor },
     type: "smoothstep",
     style: {
       stroke: strokeColor,
-      strokeWidth: connection.animated ? 2 : 1.75,
+      strokeWidth: connection.animated ? 2.25 : 2,
     },
     markerEnd: {
       type: MarkerType.ArrowClosed,
       color: strokeColor,
-      width: 16,
-      height: 16,
+      width: 15,
+      height: 15,
     },
   };
 }
 
 /**
- * Convierte una lista de Connection a Edges de React Flow.
+ * Convierte una lista de Connection a Edges de React Flow, enlazando el color de cada nodo origen.
  */
-export function toFlowEdges(connections: Connection[]): MindDiaryFlowEdge[] {
-  return connections.map(toFlowEdge);
+export function toFlowEdges(
+  connections: Connection[],
+  sourceNodes?: IdeaNode[]
+): MindDiaryFlowEdge[] {
+  const colorByNodeId = new Map<string, IdeaNodeColor>();
+  if (sourceNodes) {
+    for (const node of sourceNodes) {
+      colorByNodeId.set(node.id, node.color);
+    }
+  }
+  return connections.map((conn) =>
+    toFlowEdge(conn, colorByNodeId.get(conn.source))
+  );
 }
 
 /**
@@ -94,12 +115,14 @@ export function fromFlowNode(flowNode: MindDiaryFlowNode): IdeaNode {
  * Convierte un Edge de React Flow de vuelta al modelo de dominio Connection.
  */
 export function fromFlowEdge(edge: MindDiaryFlowEdge): Connection {
+  const edgeData = edge.data as { color?: IdeaNodeColor } | undefined;
   return {
     id: edge.id,
     source: edge.source,
     target: edge.target,
     label: typeof edge.label === "string" ? edge.label : undefined,
     animated: edge.animated,
+    color: edgeData?.color,
   };
 }
 
@@ -139,14 +162,12 @@ export function calculateSpawnPositions(
 
   for (let i = 0; i < count; i++) {
     const centeredIndex = i - (count - 1) / 2;
-    // Curvatura suave en abanico hacia la derecha
     const curveOffset = Math.abs(centeredIndex) * 28;
     let candidate = {
       x: Math.round(parentPos.x + horizontalRadius + curveOffset),
       y: Math.round(parentPos.y + centeredIndex * verticalGap),
     };
 
-    // Si la posición ya está ocupada, desplazamos en abanico hasta encontrar hueco libre
     let attempts = 0;
     while (isColliding(candidate, occupied) && attempts < 12) {
       attempts += 1;

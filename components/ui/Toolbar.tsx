@@ -10,6 +10,7 @@ import {
   EyeOff,
   FileCode2,
   FileText,
+  Globe,
   Loader2,
   Menu,
   Plus,
@@ -20,6 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { SaveStatus } from "@/lib/useAutoSave";
+import { SUPPORTED_LANGUAGES, useLanguage } from "@/lib/i18n";
 import { Button } from "./Button";
 
 interface ToolbarProps {
@@ -49,15 +51,19 @@ export function Toolbar({
   onImportJson,
   onRequestClearCanvas,
 }: ToolbarProps) {
+  const { language, setLanguage, t } = useLanguage();
+
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const langMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isExportMenuOpen && !isMobileMenuOpen) return;
+    if (!isExportMenuOpen && !isLangMenuOpen && !isMobileMenuOpen) return;
     const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
       if (
@@ -66,6 +72,13 @@ export function Toolbar({
         !exportMenuRef.current.contains(target)
       ) {
         setIsExportMenuOpen(false);
+      }
+      if (
+        isLangMenuOpen &&
+        langMenuRef.current &&
+        !langMenuRef.current.contains(target)
+      ) {
+        setIsLangMenuOpen(false);
       }
       if (
         isMobileMenuOpen &&
@@ -81,7 +94,11 @@ export function Toolbar({
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("touchstart", handleOutsideClick);
     };
-  }, [isExportMenuOpen, isMobileMenuOpen]);
+  }, [isExportMenuOpen, isLangMenuOpen, isMobileMenuOpen]);
+
+  const currentLangMeta =
+    SUPPORTED_LANGUAGES.find((l) => l.code === language) ??
+    SUPPORTED_LANGUAGES[0];
 
   return (
     <>
@@ -130,16 +147,17 @@ export function Toolbar({
               {/* Badge AI Studio en escritorio */}
               <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
                 <Sparkles className="h-2.5 w-2.5" />
-                AI Studio
+                {t.appSubtitle}
               </span>
             </div>
 
             {/* Subtítulo detallado solo en pantallas >= sm */}
             <div className="hidden sm:flex items-center gap-2 text-[11px] text-slate-500">
               <span>
-                {nodeCount} {nodeCount === 1 ? "idea" : "ideas"} ·{" "}
+                {nodeCount}{" "}
+                {nodeCount === 1 ? t.ideaSingular : t.ideaPlural} ·{" "}
                 {connectionCount}{" "}
-                {connectionCount === 1 ? "conexión" : "conexiones"}
+                {connectionCount === 1 ? t.connSingular : t.connPlural}
               </span>
               {saveStatus !== "idle" && (
                 <>
@@ -148,12 +166,12 @@ export function Toolbar({
                     {saveStatus === "saving" ? (
                       <>
                         <Loader2 className="h-2.5 w-2.5 animate-spin text-blue-500" />
-                        Guardando...
+                        {t.saving}
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="h-2.5 w-2.5 text-emerald-500" />
-                        Guardado
+                        {t.saved}
                       </>
                     )}
                   </span>
@@ -171,14 +189,68 @@ export function Toolbar({
         >
           {/* Botones secundarios visibles directamente en escritorio (sm:flex) */}
           <div className="hidden sm:flex items-center gap-1.5">
+            {/* Selector de Idioma Discreto */}
+            <div className="relative" ref={langMenuRef}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setIsExportMenuOpen(false);
+                  setIsLangMenuOpen((prev) => !prev);
+                }}
+                title={t.languageLabel}
+              >
+                <Globe className="h-3.5 w-3.5 text-slate-500" />
+                <span className="text-xs font-semibold">
+                  {currentLangMeta.shortLabel}
+                </span>
+                <ChevronDown
+                  className={`h-3 w-3 text-slate-400 transition-transform duration-150 ${
+                    isLangMenuOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </Button>
+
+              {isLangMenuOpen && (
+                <div className="absolute right-0 mt-2 w-40 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/98 p-1.5 shadow-xl shadow-slate-900/10 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-2.5 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                    {t.languageLabel}
+                  </div>
+                  {SUPPORTED_LANGUAGES.map((lang) => {
+                    const isSelected = lang.code === language;
+                    return (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => {
+                          setLanguage(lang.code);
+                          setIsLangMenuOpen(false);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-xl px-2.5 py-1.5 text-left text-xs font-medium transition-colors cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-50 text-blue-700"
+                            : "text-slate-700 hover:bg-slate-100/80"
+                        }`}
+                      >
+                        <span>{lang.name}</span>
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                          {lang.shortLabel}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             <Button
               variant="ghost"
               size="sm"
               onClick={onOpenQuickCapture}
-              title="Captura Rápida (Ctrl+K o Cmd+K)"
+              title={`${t.quickCaptureBtn} (Ctrl+K / Cmd+K)`}
             >
               <Zap className="h-3.5 w-3.5 text-blue-600" />
-              <span className="hidden md:inline">Captura Rápida</span>
+              <span className="hidden md:inline">{t.quickCaptureBtn}</span>
               <kbd className="hidden lg:inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
                 ⌘K
               </kbd>
@@ -188,10 +260,10 @@ export function Toolbar({
               variant="ghost"
               size="sm"
               onClick={onToggleZenMode}
-              title="Modo Flujo Creativo / Zen Mode (Shift+Z)"
+              title={`${t.zenBtn} (Shift+Z)`}
             >
               <EyeOff className="h-3.5 w-3.5" />
-              <span className="hidden md:inline">Zen</span>
+              <span className="hidden md:inline">{t.zenBtn}</span>
             </Button>
 
             {/* Menú desplegable de Exportación y Respaldo (Escritorio) */}
@@ -199,11 +271,14 @@ export function Toolbar({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsExportMenuOpen((prev) => !prev)}
-                title="Exportar, respaldar o limpiar lienzo"
+                onClick={() => {
+                  setIsLangMenuOpen(false);
+                  setIsExportMenuOpen((prev) => !prev);
+                }}
+                title={t.exportBtn}
               >
                 <Download className="h-3.5 w-3.5" />
-                <span className="hidden md:inline">Exportar</span>
+                <span className="hidden md:inline">{t.exportBtn}</span>
                 <ChevronDown
                   className={`h-3 w-3 text-slate-400 transition-transform duration-150 ${
                     isExportMenuOpen ? "rotate-180" : ""
@@ -214,7 +289,7 @@ export function Toolbar({
               {isExportMenuOpen && (
                 <div className="absolute right-0 mt-2 w-60 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 p-1.5 shadow-xl shadow-slate-900/10 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
                   <div className="px-2.5 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
-                    Exportación y Backup
+                    {t.exportHeader}
                   </div>
 
                   <button
@@ -227,9 +302,9 @@ export function Toolbar({
                   >
                     <FileText className="h-4 w-4 text-blue-600 shrink-0" />
                     <div>
-                      <div>Exportar como Markdown</div>
+                      <div>{t.exportMarkdownTitle}</div>
                       <div className="text-[10px] font-normal text-slate-400">
-                        Jerárquico (.md) para Notion / Obsidian
+                        {t.exportMarkdownSub}
                       </div>
                     </div>
                   </button>
@@ -244,9 +319,9 @@ export function Toolbar({
                   >
                     <FileCode2 className="h-4 w-4 text-indigo-600 shrink-0" />
                     <div>
-                      <div>Exportar como JSON</div>
+                      <div>{t.exportJsonTitle}</div>
                       <div className="text-[10px] font-normal text-slate-400">
-                        Respaldo completo de nodos y enlaces
+                        {t.exportJsonSub}
                       </div>
                     </div>
                   </button>
@@ -261,9 +336,9 @@ export function Toolbar({
                   >
                     <Upload className="h-4 w-4 text-emerald-600 shrink-0" />
                     <div>
-                      <div>Importar respaldo JSON</div>
+                      <div>{t.importJsonTitle}</div>
                       <div className="text-[10px] font-normal text-slate-400">
-                        Restaurar desde archivo .json
+                        {t.importJsonSub}
                       </div>
                     </div>
                   </button>
@@ -280,9 +355,9 @@ export function Toolbar({
                   >
                     <Trash2 className="h-4 w-4 shrink-0" />
                     <div>
-                      <div>Limpiar Lienzo</div>
+                      <div>{t.clearCanvasTitle}</div>
                       <div className="text-[10px] font-normal text-rose-500/80">
-                        Vaciar tablero o restaurar plantilla
+                        {t.clearCanvasSub}
                       </div>
                     </div>
                   </button>
@@ -296,11 +371,11 @@ export function Toolbar({
             variant="primary"
             size="sm"
             onClick={onAddNode}
-            aria-label="Nueva Idea"
+            aria-label={t.newIdeaBtn}
             className="min-h-[44px] min-w-[44px] px-3 sm:min-h-0 sm:min-w-0 sm:px-3"
           >
             <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-            <span className="hidden sm:inline">Nueva Idea</span>
+            <span className="hidden sm:inline">{t.newIdeaBtn}</span>
           </Button>
 
           {/* Menú Hamburguesa / Drawer para Móvil (< 640px) */}
@@ -308,7 +383,7 @@ export function Toolbar({
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-              aria-label="Menú de opciones"
+              aria-label={t.mobileMenuHeader}
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-slate-600 transition-colors active:bg-slate-100 hover:bg-slate-100 cursor-pointer"
             >
               {isMobileMenuOpen ? (
@@ -319,9 +394,38 @@ export function Toolbar({
             </button>
 
             {isMobileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/98 p-2 shadow-2xl shadow-slate-900/15 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-3 py-1.5 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
-                  Acciones y Herramientas
+              <div className="absolute right-0 mt-2 w-68 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/98 p-2 shadow-2xl shadow-slate-900/15 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
+                {/* Selector rápido de idioma en móvil */}
+                <div className="px-3 pt-1 pb-2">
+                  <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                    <Globe className="h-3 w-3" />
+                    <span>{t.languageLabel}</span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-1">
+                    {SUPPORTED_LANGUAGES.map((lang) => {
+                      const isSelected = lang.code === language;
+                      return (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => setLanguage(lang.code)}
+                          className={`flex min-h-[34px] items-center justify-center rounded-lg text-xs font-semibold transition-colors ${
+                            isSelected
+                              ? "bg-blue-600 text-white shadow-xs"
+                              : "bg-slate-100 text-slate-600 active:bg-slate-200"
+                          }`}
+                        >
+                          {lang.shortLabel}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="my-1 border-t border-slate-100" />
+
+                <div className="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+                  {t.mobileMenuHeader}
                 </div>
 
                 <button
@@ -334,9 +438,9 @@ export function Toolbar({
                 >
                   <Zap className="h-4 w-4 text-blue-600 shrink-0" />
                   <div>
-                    <div>Captura Rápida</div>
+                    <div>{t.quickCaptureBtn}</div>
                     <div className="text-[10px] font-normal text-slate-400">
-                      Crear idea al instante en el centro
+                      {t.quickCaptureCenterHint}
                     </div>
                   </div>
                 </button>
@@ -351,9 +455,9 @@ export function Toolbar({
                 >
                   <EyeOff className="h-4 w-4 text-slate-600 shrink-0" />
                   <div>
-                    <div>Modo Flujo Creativo (Zen)</div>
+                    <div>{t.zenBtn}</div>
                     <div className="text-[10px] font-normal text-slate-400">
-                      Despejar interfaz para concentrarse
+                      Shift + Z
                     </div>
                   </div>
                 </button>
@@ -361,7 +465,7 @@ export function Toolbar({
                 <div className="my-1.5 border-t border-slate-100" />
 
                 <div className="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
-                  Exportar y Respaldo
+                  {t.exportHeader}
                 </div>
 
                 <button
@@ -374,9 +478,9 @@ export function Toolbar({
                 >
                   <FileText className="h-4 w-4 text-blue-600 shrink-0" />
                   <div>
-                    <div>Exportar Markdown (.md)</div>
+                    <div>{t.exportMarkdownTitle}</div>
                     <div className="text-[10px] font-normal text-slate-400">
-                      Para Notion u Obsidian
+                      {t.exportMarkdownSub}
                     </div>
                   </div>
                 </button>
@@ -391,9 +495,9 @@ export function Toolbar({
                 >
                   <FileCode2 className="h-4 w-4 text-indigo-600 shrink-0" />
                   <div>
-                    <div>Exportar Respaldo (.json)</div>
+                    <div>{t.exportJsonTitle}</div>
                     <div className="text-[10px] font-normal text-slate-400">
-                      Guardar copia del mapa actual
+                      {t.exportJsonSub}
                     </div>
                   </div>
                 </button>
@@ -408,9 +512,9 @@ export function Toolbar({
                 >
                   <Upload className="h-4 w-4 text-emerald-600 shrink-0" />
                   <div>
-                    <div>Importar Respaldo (.json)</div>
+                    <div>{t.importJsonTitle}</div>
                     <div className="text-[10px] font-normal text-slate-400">
-                      Cargar archivo guardado
+                      {t.importJsonSub}
                     </div>
                   </div>
                 </button>
@@ -427,9 +531,9 @@ export function Toolbar({
                 >
                   <Trash2 className="h-4 w-4 shrink-0" />
                   <div>
-                    <div>Limpiar Lienzo</div>
+                    <div>{t.clearCanvasTitle}</div>
                     <div className="text-[10px] font-normal text-rose-500/80">
-                      Vaciar tablero o restaurar plantilla
+                      {t.clearCanvasSub}
                     </div>
                   </div>
                 </button>
@@ -457,8 +561,8 @@ export function Toolbar({
       <button
         type="button"
         onClick={onOpenQuickCapture}
-        aria-label="Captura Rápida de Idea"
-        title="Captura Rápida de Idea"
+        aria-label={t.quickCaptureBtn}
+        title={t.quickCaptureBtn}
         className={`fixed right-4 bottom-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-4 ring-white/80 transition-all duration-200 active:scale-95 sm:hidden ${
           isZenMode
             ? "translate-y-6 opacity-0 pointer-events-none"
@@ -468,7 +572,7 @@ export function Toolbar({
         <Plus className="h-6 w-6 stroke-[2.5]" />
       </button>
 
-      {/* Botón flotante sutil para salir de Zen Mode (adaptado a área táctil móvil) */}
+      {/* Botón flotante sutil para salir de Zen Mode */}
       <div
         className={`fixed top-3 right-3 sm:top-4 sm:right-6 z-30 transition-all duration-300 ease-out ${
           isZenMode
@@ -479,11 +583,11 @@ export function Toolbar({
         <button
           type="button"
           onClick={onToggleZenMode}
-          title="Salir de Modo Zen (Shift+Z)"
+          title={`${t.exitZenBtn} (Shift+Z)`}
           className="group flex min-h-[44px] items-center gap-2 rounded-full border border-slate-200/80 bg-white/85 px-4 py-2 text-xs font-medium text-slate-700 shadow-sm backdrop-blur-md transition-all hover:border-blue-200 hover:bg-white hover:text-blue-600 cursor-pointer"
         >
           <Eye className="h-4 w-4 text-slate-500 transition-colors group-hover:text-blue-600" />
-          <span>Salir de Modo Zen</span>
+          <span>{t.exitZenBtn}</span>
           <kbd className="hidden sm:inline-block rounded border border-slate-200/80 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-400">
             ⇧Z
           </kbd>

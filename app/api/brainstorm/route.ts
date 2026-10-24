@@ -12,13 +12,21 @@ import {
 } from "@/lib/brainstorm";
 
 function buildSystemPrompt(mode: BrainstormMode): string {
+  if (mode === "visual") {
+    return [
+      "Eres un analista visual y estratega creativo en Mind Diary.",
+      "Dado un nodo con imagen adjunta, extrae 3 conceptos visuales o sub-ideas accionables inspiradas en la referencia visual.",
+      "Responde ÚNICAMENTE con un objeto JSON válido con la estructura:",
+      '{ "subIdeas": [{ "title": string, "content": string, "category": "reference" | "task" | "idea" }] }',
+    ].join(" ");
+  }
+
   if (mode === "unblock") {
     return [
       "Eres un estratega creativo minimalista integrado en Mind Diary.",
       "Dado un nodo de idea, genera entre 2 y 3 preguntas detonantes o perspectivas contrarias/disruptivas para desbloquear el pensamiento.",
       "Responde ÚNICAMENTE con un objeto JSON válido con la estructura:",
-      '{ "subIdeas": [{ "title": string, "content": string, "category": "question" | "note" | "idea", "color": "amber" | "rose" | "violet" }] }',
-      "En español, conciso, claro y accionable.",
+      '{ "subIdeas": [{ "title": string, "content": string, "category": "question" | "note" | "idea" }] }',
     ].join(" ");
   }
 
@@ -26,8 +34,7 @@ function buildSystemPrompt(mode: BrainstormMode): string {
     "Eres un arquitecto de ideas e innovación integrado en Mind Diary.",
     "Dado un nodo central, genera entre 3 y 4 sub-ideas derivadas lógicamente que desglosen la idea en pasos, componentes o ángulos complementarios.",
     "Responde ÚNICAMENTE con un objeto JSON válido con la estructura:",
-    '{ "subIdeas": [{ "title": string, "content": string, "category": "idea" | "project" | "task" | "reference", "color": "blue" | "indigo" | "emerald" | "violet" }] }',
-    "En español, conciso, claro y accionable.",
+    '{ "subIdeas": [{ "title": string, "content": string, "category": "idea" | "project" | "task" | "reference" }] }',
   ].join(" ");
 }
 
@@ -49,7 +56,7 @@ async function generateWithGemini(
             role: "user",
             parts: [
               {
-                text: `Nodo central:\nTítulo: ${payload.title}\nContenido: ${payload.content}\nCategoría: ${payload.category}\nModo: ${payload.mode}`,
+                text: `Nodo central:\nTítulo: ${payload.title}\nContenido: ${payload.content}\nCategoría: ${payload.category}\nModo: ${payload.mode}\nIdioma: ${payload.language ?? "es"}`,
               },
             ],
           },
@@ -91,7 +98,7 @@ async function generateWithOpenAI(
         { role: "system", content: buildSystemPrompt(payload.mode) },
         {
           role: "user",
-          content: `Nodo central:\nTítulo: ${payload.title}\nContenido: ${payload.content}\nCategoría: ${payload.category}\nModo: ${payload.mode}`,
+          content: `Nodo central:\nTítulo: ${payload.title}\nContenido: ${payload.content}\nCategoría: ${payload.category}\nModo: ${payload.mode}\nIdioma: ${payload.language ?? "es"}`,
         },
       ],
     }),
@@ -115,7 +122,12 @@ export async function POST(request: Request) {
     const content = typeof body.content === "string" ? body.content.trim() : "";
     const category = sanitizeCategory(body.category, "idea");
     const mode: BrainstormMode =
-      body.mode === "unblock" ? "unblock" : "expand";
+      body.mode === "unblock"
+        ? "unblock"
+        : body.mode === "visual"
+          ? "visual"
+          : "expand";
+    const language = body.language ?? "es";
 
     if (!title) {
       return NextResponse.json(
@@ -130,6 +142,7 @@ export async function POST(request: Request) {
       content,
       category,
       mode,
+      language,
     };
 
     const geminiKey = process.env.GEMINI_API_KEY;
@@ -162,9 +175,15 @@ export async function POST(request: Request) {
       return NextResponse.json(responsePayload);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 650));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    const fallbackSubIdeas = buildContextualFallback(title, content, mode);
+    const fallbackSubIdeas = buildContextualFallback(
+      title,
+      content,
+      mode,
+      "blue",
+      language
+    );
     const responsePayload: BrainstormResponsePayload = {
       subIdeas: fallbackSubIdeas,
       source: "fallback",

@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, RotateCcw, Trash2, X } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 import { Button } from "./Button";
 
 interface ConfirmClearModalProps {
@@ -16,6 +17,8 @@ export function ConfirmClearModal({
   onClearEmpty,
   onResetTemplate,
 }: ConfirmClearModalProps) {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   return (
@@ -36,17 +39,15 @@ export function ConfirmClearModal({
             </div>
             <div>
               <h2 className="text-base font-semibold text-slate-900">
-                Reiniciar o Limpiar Lienzo
+                {t.clearModalTitle}
               </h2>
-              <p className="text-xs text-slate-500">
-                Elige cómo deseas reiniciar tu espacio de trabajo
-              </p>
+              <p className="text-xs text-slate-500">{t.clearModalSubtitle}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Cerrar diálogo"
+            aria-label={t.cancelBtn}
             className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl p-1.5 text-slate-400 active:bg-slate-100 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
           >
             <X className="h-4 w-4" />
@@ -54,12 +55,7 @@ export function ConfirmClearModal({
         </div>
 
         <p className="mb-5 text-xs leading-relaxed text-slate-600">
-          Esta acción reemplazará los nodos y conexiones actuales en tu
-          almacenamiento local. Si deseas conservar tu progreso, puedes{" "}
-          <span className="font-medium text-slate-800">
-            exportar un respaldo JSON
-          </span>{" "}
-          antes de continuar.
+          {t.clearModalWarning}
         </p>
 
         <div className="space-y-2.5">
@@ -73,10 +69,10 @@ export function ConfirmClearModal({
           >
             <div>
               <div className="text-xs font-semibold text-rose-700">
-                Dejar lienzo completamente limpio
+                {t.clearEmptyTitle}
               </div>
               <div className="text-[11px] text-rose-600/80">
-                Elimina todos los nodos y conexiones para empezar desde cero
+                {t.clearEmptySub}
               </div>
             </div>
             <Trash2 className="h-4 w-4 text-rose-600 shrink-0" />
@@ -92,10 +88,10 @@ export function ConfirmClearModal({
           >
             <div>
               <div className="text-xs font-semibold text-slate-800">
-                Restaurar plantilla inicial
+                {t.resetTemplateTitle}
               </div>
               <div className="text-[11px] text-slate-500">
-                Carga las 3 ideas de ejemplo originales de Mind Diary
+                {t.resetTemplateSub}
               </div>
             </div>
             <RotateCcw className="h-4 w-4 text-slate-600 shrink-0" />
@@ -110,7 +106,7 @@ export function ConfirmClearModal({
             onClick={onClose}
             className="min-h-[44px] w-full sm:w-auto sm:min-h-0"
           >
-            Cancelar
+            {t.cancelBtn}
           </Button>
         </div>
       </div>

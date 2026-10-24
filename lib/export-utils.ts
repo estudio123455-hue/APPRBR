@@ -73,6 +73,9 @@ export function buildMarkdownDocument(
     lines.push(`${headingPrefix} ${node.title}`);
     lines.push(`- **Categoría:** ${categoryLabel}`);
     lines.push(`- **Etiquetas:** ${tagList}`);
+    if (node.imageUrl) {
+      lines.push(`- **Referencia visual:** _Imagen adjunta_`);
+    }
     lines.push("");
     lines.push(node.content);
     lines.push("");
@@ -204,6 +207,8 @@ export function parseJsonBackup(rawText: string): {
       tags: Array.isArray(n.tags) ? n.tags : [],
       x: typeof n.x === "number" ? n.x : 180 + index * 60,
       y: typeof n.y === "number" ? n.y : 160 + index * 60,
+      parentId: typeof n.parentId === "string" ? n.parentId : undefined,
+      imageUrl: typeof n.imageUrl === "string" ? n.imageUrl : undefined,
       createdAt: n.createdAt,
       updatedAt: n.updatedAt,
     }));
@@ -226,6 +231,7 @@ export function parseJsonBackup(rawText: string): {
       target: c.target,
       label: c.label,
       animated: Boolean(c.animated),
+      color: c.color as IdeaNodeColor | undefined,
     }));
 
   return {

@@ -1,7 +1,12 @@
 import type { Edge, Node } from "reactflow";
 
 /**
- * Paleta de colores semánticos minimalistas para los nodos de ideas.
+ * Idiomas soportados por la interfaz y el reconocimiento de voz.
+ */
+export type SupportedLanguage = "es" | "en" | "fr" | "pt" | "de";
+
+/**
+ * Paleta de colores semánticos minimalistas para los nodos y ramas.
  */
 export type IdeaNodeColor =
   | "slate"
@@ -27,8 +32,9 @@ export type IdeaCategory =
  * Modos del asistente creativo de IA.
  * - 'expand': genera 3 a 4 sub-ideas derivadas lógicamente.
  * - 'unblock': genera 2 a 3 preguntas detonantes o perspectivas disruptivas.
+ * - 'visual': analiza una referencia visual/foto adjunta y extrae conceptos y sub-ideas.
  */
-export type BrainstormMode = "expand" | "unblock";
+export type BrainstormMode = "expand" | "unblock" | "visual";
 
 /**
  * Payload enviado al endpoint POST /api/brainstorm.
@@ -39,10 +45,12 @@ export interface BrainstormRequestPayload {
   content: string;
   category: IdeaCategory;
   mode: BrainstormMode;
+  language?: SupportedLanguage;
+  hasImage?: boolean;
 }
 
 /**
- * Sub-idea estructurada devuelta por el endpoint de IA.
+ * Sub-idea estructurada devuelta por el endpoint o motor local de IA.
  */
 export interface GeneratedSubIdea {
   title: string;
@@ -81,6 +89,8 @@ export interface IdeaNode {
   tags: Tag[];
   x: number;
   y: number;
+  parentId?: string;
+  imageUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -94,6 +104,7 @@ export interface Connection {
   target: string;
   label?: string;
   animated?: boolean;
+  color?: IdeaNodeColor;
 }
 
 /**
@@ -109,7 +120,10 @@ export interface MindDiaryPersistedState {
  * Campos editables en línea desde IdeaNodeCard.
  */
 export type IdeaNodeInlineUpdates = Partial<
-  Pick<IdeaNode, "title" | "content" | "color" | "category">
+  Pick<
+    IdeaNode,
+    "title" | "content" | "color" | "category" | "imageUrl" | "parentId"
+  >
 >;
 
 /**
