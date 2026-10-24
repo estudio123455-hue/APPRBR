@@ -44,10 +44,10 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
     }
   }, [editingField]);
 
-  // Cerrar el menú contextual de IA al hacer clic fuera
+  // Cerrar el menú contextual de IA al hacer clic o toque fuera
   useEffect(() => {
     if (!isAiMenuOpen) return;
-    const handleOutsideClick = (event: MouseEvent) => {
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
       if (
         aiMenuRef.current &&
         !aiMenuRef.current.contains(event.target as Node)
@@ -56,7 +56,11 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
       }
     };
     document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
   }, [isAiMenuOpen]);
 
   const commitTitle = () => {
@@ -92,7 +96,7 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
 
   return (
     <div
-      className={`group relative w-72 rounded-2xl border bg-white p-4 transition-all duration-150 ${
+      className={`group relative w-64 sm:w-72 max-w-[85vw] rounded-2xl border bg-white p-3.5 sm:p-4 transition-all duration-150 ${
         palette.border
       } ${
         selected
@@ -105,14 +109,14 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
         className={`absolute top-0 right-4 left-4 h-1 rounded-b-full ${palette.accent}`}
       />
 
-      {/* Handle de entrada */}
+      {/* Handle de entrada (optimizado para toque en móvil) */}
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-3 !w-3 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500"
+        className="!h-4 !w-4 sm:!h-3 sm:!w-3 !-left-2 sm:!-left-1.5 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500 active:!bg-blue-600"
       />
 
-      {/* Cabecera: Categoría y acciones (IA + Editar + Eliminar) */}
+      {/* Cabecera: Categoría y acciones táctiles (IA + Editar + Eliminar) */}
       <div className="mb-2 flex items-center justify-between pt-1">
         <span
           className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${palette.badgeBg} ${palette.badgeText}`}
@@ -122,7 +126,7 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
         </span>
 
         <div className="relative flex items-center gap-1" ref={aiMenuRef}>
-          {/* Botón de Asistente IA */}
+          {/* Botón de Asistente IA con área táctil ampliada en móvil */}
           <button
             type="button"
             disabled={isGenerating}
@@ -131,16 +135,17 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
               setIsAiMenuOpen((prev) => !prev);
             }}
             title="Asistente IA de Desbloqueo y Sub-ideas"
-            className={`nodrag inline-flex items-center gap-1 rounded-lg px-1.5 py-1 text-[11px] font-medium transition-all cursor-pointer ${
+            aria-label="Asistente IA"
+            className={`nodrag inline-flex min-h-[34px] min-w-[34px] sm:min-h-0 sm:min-w-0 items-center justify-center gap-1 rounded-lg px-2 py-1.5 sm:px-1.5 sm:py-1 text-[11px] font-medium transition-all cursor-pointer ${
               isAiMenuOpen || isGenerating
                 ? "bg-blue-50 text-blue-600 ring-1 ring-blue-200"
-                : "text-slate-400 hover:bg-blue-50/80 hover:text-blue-600"
+                : "text-slate-500 sm:text-slate-400 active:bg-blue-50 hover:bg-blue-50/80 hover:text-blue-600"
             }`}
           >
             {isGenerating ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
+              <Loader2 className="h-4 w-4 sm:h-3.5 sm:w-3.5 animate-spin text-blue-600" />
             ) : (
-              <Sparkles className="h-3.5 w-3.5" />
+              <Sparkles className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
             )}
           </button>
 
@@ -148,7 +153,7 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
           {isAiMenuOpen && !isGenerating && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="nodrag absolute top-8 right-0 z-30 w-52 overflow-hidden rounded-xl border border-slate-200/90 bg-white/95 p-1 shadow-lg shadow-slate-900/10 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
+              className="nodrag absolute top-9 right-0 z-30 w-56 overflow-hidden rounded-xl border border-slate-200/90 bg-white/98 p-1.5 shadow-xl shadow-slate-900/15 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
             >
               <div className="px-2.5 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
                 Asistente IA
@@ -156,32 +161,33 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
               <button
                 type="button"
                 onClick={() => handleTriggerBrainstorm("expand")}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+                className="flex min-h-[42px] sm:min-h-0 w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors active:bg-blue-50 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
               >
                 <span>✨ Desglosar sub-ideas</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleTriggerBrainstorm("unblock")}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-amber-50 hover:text-amber-800 cursor-pointer"
+                className="flex min-h-[42px] sm:min-h-0 w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors active:bg-amber-50 hover:bg-amber-50 hover:text-amber-800 cursor-pointer"
               >
                 <span>🎯 Perspectiva anti-bloqueo</span>
               </button>
             </div>
           )}
 
-          {/* Acciones secundarias en hover */}
-          <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+          {/* Acciones secundarias (siempre visibles en pantallas táctiles móviles, hover en escritorio) */}
+          <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 transition-opacity sm:group-hover:opacity-100">
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 startEditingTitle();
               }}
-              title="Editar texto (o haz clic directo)"
-              className="nodrag rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-blue-600 cursor-pointer"
+              title="Editar texto"
+              aria-label="Editar texto"
+              className="nodrag flex min-h-[34px] min-w-[34px] sm:min-h-0 sm:min-w-0 items-center justify-center rounded-lg p-1.5 sm:p-1 text-slate-400 active:bg-slate-100 hover:bg-slate-100 hover:text-blue-600 cursor-pointer"
             >
-              <Pencil className="h-3 w-3" />
+              <Pencil className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
             </button>
 
             {onDelete && (
@@ -192,16 +198,17 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
                   onDelete(idea.id);
                 }}
                 title="Eliminar nodo"
-                className="nodrag rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
+                aria-label="Eliminar nodo"
+                className="nodrag flex min-h-[34px] min-w-[34px] sm:min-h-0 sm:min-w-0 items-center justify-center rounded-lg p-1.5 sm:p-1 text-slate-400 active:bg-rose-50 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Título con edición en línea al hacer clic o doble clic */}
+      {/* Título con edición en línea al hacer clic o toque */}
       {editingField === "title" ? (
         <input
           ref={titleInputRef}
@@ -219,20 +226,20 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
               setEditingField(null);
             }
           }}
-          className="nodrag mb-1.5 w-full rounded-lg border border-blue-300 bg-blue-50/30 px-2 py-1 text-sm font-semibold leading-snug text-slate-900 focus:border-blue-500 focus:bg-white focus:outline-none"
+          className="nodrag mb-1.5 w-full rounded-lg border border-blue-300 bg-blue-50/30 px-2 py-1 text-base sm:text-sm font-semibold leading-snug text-slate-900 focus:border-blue-500 focus:bg-white focus:outline-none"
         />
       ) : (
         <h3
           onClick={startEditingTitle}
           onDoubleClick={startEditingTitle}
-          title="Haz clic para editar el título"
-          className="mb-1.5 cursor-text rounded-md px-1 -mx-1 py-0.5 text-sm font-semibold leading-snug text-slate-900 transition-colors hover:bg-slate-50"
+          title="Toca para editar el título"
+          className="mb-1.5 cursor-text rounded-md px-1 -mx-1 py-0.5 text-sm font-semibold leading-snug text-slate-900 transition-colors active:bg-slate-100 hover:bg-slate-50"
         >
           {idea.title}
         </h3>
       )}
 
-      {/* Contenido / Descripción con edición en línea al hacer clic o doble clic */}
+      {/* Contenido / Descripción con edición en línea al hacer clic o toque */}
       {editingField === "content" ? (
         <textarea
           ref={contentInputRef}
@@ -250,14 +257,14 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
               setEditingField(null);
             }
           }}
-          className="nodrag mb-3 w-full resize-none rounded-lg border border-blue-300 bg-blue-50/30 px-2 py-1.5 text-xs leading-relaxed text-slate-700 focus:border-blue-500 focus:bg-white focus:outline-none"
+          className="nodrag mb-3 w-full resize-none rounded-lg border border-blue-300 bg-blue-50/30 px-2 py-1.5 text-base sm:text-xs leading-relaxed text-slate-700 focus:border-blue-500 focus:bg-white focus:outline-none"
         />
       ) : (
         <p
           onClick={startEditingContent}
           onDoubleClick={startEditingContent}
-          title="Haz clic para editar la descripción"
-          className="mb-3 cursor-text rounded-md px-1 -mx-1 py-0.5 text-xs leading-relaxed text-slate-600 transition-colors hover:bg-slate-50"
+          title="Toca para editar la descripción"
+          className="mb-3 cursor-text rounded-md px-1 -mx-1 py-0.5 text-xs leading-relaxed text-slate-600 transition-colors active:bg-slate-100 hover:bg-slate-50"
         >
           {idea.content}
         </p>
@@ -292,11 +299,11 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
         </div>
       )}
 
-      {/* Handle de salida */}
+      {/* Handle de salida (optimizado para toque en móvil) */}
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-3 !w-3 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500"
+        className="!h-4 !w-4 sm:!h-3 sm:!w-3 !-right-2 sm:!-right-1.5 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500 active:!bg-blue-600"
       />
     </div>
   );

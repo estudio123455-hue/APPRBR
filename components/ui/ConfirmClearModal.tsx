@@ -20,16 +20,18 @@ export function ConfirmClearModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 p-4 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/25 p-0 sm:p-4 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+        className="max-h-[90dvh] w-full sm:w-[92%] max-w-md overflow-y-auto rounded-t-3xl sm:rounded-2xl border-t sm:border border-slate-200 bg-white p-5 sm:p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-slate-200 sm:hidden" />
+
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600">
               <AlertTriangle className="h-4 w-4" />
             </div>
             <div>
@@ -44,7 +46,8 @@ export function ConfirmClearModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
+            aria-label="Cerrar diálogo"
+            className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl p-1.5 text-slate-400 active:bg-slate-100 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -66,7 +69,7 @@ export function ConfirmClearModal({
               onClearEmpty();
               onClose();
             }}
-            className="flex w-full items-center justify-between rounded-xl border border-rose-200 bg-rose-50/50 px-4 py-3 text-left transition-colors hover:bg-rose-50 cursor-pointer"
+            className="flex min-h-[56px] w-full items-center justify-between rounded-xl border border-rose-200 bg-rose-50/50 px-4 py-3 text-left transition-colors active:bg-rose-100/70 hover:bg-rose-50 cursor-pointer"
           >
             <div>
               <div className="text-xs font-semibold text-rose-700">
@@ -85,7 +88,7 @@ export function ConfirmClearModal({
               onResetTemplate();
               onClose();
             }}
-            className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-left transition-colors hover:bg-slate-100/80 cursor-pointer"
+            className="flex min-h-[56px] w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-left transition-colors active:bg-slate-200/60 hover:bg-slate-100/80 cursor-pointer"
           >
             <div>
               <div className="text-xs font-semibold text-slate-800">
@@ -100,7 +103,13 @@ export function ConfirmClearModal({
         </div>
 
         <div className="mt-5 flex justify-end">
-          <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={onClose}
+            className="min-h-[44px] w-full sm:w-auto sm:min-h-0"
+          >
             Cancelar
           </Button>
         </div>

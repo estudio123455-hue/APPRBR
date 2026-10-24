@@ -69,8 +69,17 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/25 p-0 sm:p-4 backdrop-blur-xs animate-in fade-in duration-150"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[92dvh] w-full sm:w-[92%] max-w-md overflow-y-auto rounded-t-3xl sm:rounded-2xl border-t sm:border border-slate-200 bg-white p-5 sm:p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Indicador superior tipo Bottom Sheet en móvil */}
+        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-slate-200 sm:hidden" />
+
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-slate-900">
@@ -81,8 +90,10 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
+            aria-label="Cerrar modal"
+            className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl p-1.5 text-slate-400 active:bg-slate-100 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -99,7 +110,7 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
               placeholder="Ej. Arquitectura de sincronización..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2.5 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none"
             />
           </div>
 
@@ -112,11 +123,11 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
               placeholder="Desarrolla brevemente la idea..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2.5 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-700">
                 Categoría
@@ -124,7 +135,7 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as IdeaCategory)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-xs font-medium text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none"
+                className="w-full min-h-[42px] rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm sm:text-xs font-medium text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -143,7 +154,7 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
                 placeholder="ux, producto"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none"
+                className="w-full min-h-[42px] rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-base sm:text-xs text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none"
               />
             </div>
           </div>
@@ -152,7 +163,7 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
             <label className="mb-1.5 block text-xs font-medium text-slate-700">
               Acento de color
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {COLORS.map((c) => {
                 const style = NODE_COLOR_STYLES[c];
                 const isSelected = color === c;
@@ -162,13 +173,16 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
                     type="button"
                     onClick={() => setColor(c)}
                     title={style.label}
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border transition-transform cursor-pointer ${
+                    aria-label={style.label}
+                    className={`flex h-8 w-8 sm:h-6 sm:w-6 items-center justify-center rounded-full border transition-transform cursor-pointer ${
                       isSelected
                         ? "scale-110 border-slate-900 ring-2 ring-blue-500/30"
                         : "border-slate-200 hover:scale-105"
                     }`}
                   >
-                    <span className={`h-3.5 w-3.5 rounded-full ${style.dot}`} />
+                    <span
+                      className={`h-4 w-4 sm:h-3.5 sm:w-3.5 rounded-full ${style.dot}`}
+                    />
                   </button>
                 );
               })}
@@ -176,10 +190,21 @@ export function NodeModal({ isOpen, onClose, onCreate }: NodeModalProps) {
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2">
-            <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={onClose}
+              className="min-h-[44px] sm:min-h-0"
+            >
               Cancelar
             </Button>
-            <Button type="submit" variant="primary" size="sm">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              className="min-h-[44px] sm:min-h-0"
+            >
               Crear Nodo
             </Button>
           </div>

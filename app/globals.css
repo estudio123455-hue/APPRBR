@@ -32,12 +32,16 @@
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
+html,
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Ajustes minimalistas para controles de React Flow */

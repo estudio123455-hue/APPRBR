@@ -473,7 +473,7 @@ function MindMapCanvasInner() {
   }, [clearSavedState, nodeHandlers, setNodes, setEdges, showToast]);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-slate-50">
+    <div className="relative h-[100dvh] w-screen overflow-hidden touch-none overscroll-none bg-slate-50">
       <Toolbar
         nodeCount={nodes.length}
         connectionCount={edges.length}
@@ -496,11 +496,16 @@ function MindMapCanvasInner() {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         deleteKeyCode={null}
+        panOnDrag={true}
+        zoomOnPinch={true}
+        zoomOnDoubleClick={false}
+        preventScrolling={true}
         fitView
         fitViewOptions={{ padding: 0.25 }}
-        minZoom={0.25}
+        minZoom={0.2}
         maxZoom={2}
         proOptions={{ hideAttribution: false }}
+        className="touch-none"
       >
         <Background
           variant={BackgroundVariant.Dots}
@@ -512,7 +517,7 @@ function MindMapCanvasInner() {
         <Controls
           position="bottom-left"
           showInteractive={false}
-          className={`transition-all duration-300 ease-out ${
+          className={`!bottom-5 !left-3 origin-bottom-left scale-90 sm:!bottom-4 sm:!left-4 sm:scale-100 transition-all duration-300 ease-out ${
             isZenMode
               ? "translate-y-4 opacity-0 pointer-events-none"
               : "translate-y-0 opacity-100"
@@ -523,7 +528,7 @@ function MindMapCanvasInner() {
           position="bottom-right"
           pannable
           zoomable
-          className={`!rounded-2xl !border !border-slate-200/80 !bg-white/90 !shadow-sm backdrop-blur-md transition-all duration-300 ease-out ${
+          className={`hidden sm:block !rounded-2xl !border !border-slate-200/80 !bg-white/90 !shadow-sm backdrop-blur-md transition-all duration-300 ease-out ${
             isZenMode
               ? "translate-y-4 opacity-0 pointer-events-none"
               : "translate-y-0 opacity-100"
@@ -535,7 +540,7 @@ function MindMapCanvasInner() {
 
       {/* Notificación flotante (Toast) para feedback de IA, exportación y errores */}
       {toast && (
-        <div className="pointer-events-none fixed bottom-6 left-1/2 z-40 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="pointer-events-none fixed bottom-20 sm:bottom-6 left-1/2 z-40 w-max max-w-[90vw] -translate-x-1/2 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div
             className={`pointer-events-auto flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium shadow-lg backdrop-blur-md ${
               toast.type === "error"
@@ -544,11 +549,11 @@ function MindMapCanvasInner() {
             }`}
           >
             {toast.type === "error" ? (
-              <AlertCircle className="h-3.5 w-3.5 text-rose-600" />
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 text-rose-600" />
             ) : (
-              <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+              <Sparkles className="h-3.5 w-3.5 shrink-0 text-blue-600" />
             )}
-            <span>{toast.text}</span>
+            <span className="truncate">{toast.text}</span>
           </div>
         </div>
       )}
