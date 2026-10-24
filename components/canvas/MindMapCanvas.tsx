@@ -46,6 +46,7 @@ import {
 } from "@/lib/export-utils";
 import { buildContextualFallback } from "@/lib/brainstorm";
 import { LanguageProvider, useLanguage } from "@/lib/i18n";
+import { AuthProvider } from "@/lib/auth-context";
 import { useAutoSave } from "@/lib/useAutoSave";
 import { IdeaNodeCard } from "./IdeaNodeCard";
 import { Toolbar } from "@/components/ui/Toolbar";
@@ -53,6 +54,7 @@ import { NodeModal } from "@/components/ui/NodeModal";
 import { QuickCapture } from "@/components/ui/QuickCapture";
 import { ConfirmClearModal } from "@/components/ui/ConfirmClearModal";
 import { HowItWorksModal } from "@/components/ui/HowItWorksModal";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 interface ToastMessage {
   id: string;
@@ -699,6 +701,8 @@ function MindMapCanvasInner() {
         isOpen={isHowItWorksOpen}
         onClose={() => setIsHowItWorksOpen(false)}
       />
+
+      <AuthModal />
     </div>
   );
 }
@@ -706,9 +710,11 @@ function MindMapCanvasInner() {
 export function MindMapCanvas() {
   return (
     <LanguageProvider>
-      <ReactFlowProvider>
-        <MindMapCanvasInner />
-      </ReactFlowProvider>
+      <AuthProvider>
+        <ReactFlowProvider>
+          <MindMapCanvasInner />
+        </ReactFlowProvider>
+      </AuthProvider>
     </LanguageProvider>
   );
 }

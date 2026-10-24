@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
   BrainCircuit,
+  Check,
   CheckCircle2,
   ChevronDown,
+  Cloud,
   Download,
   Eye,
   EyeOff,
@@ -13,16 +15,19 @@ import {
   Globe,
   HelpCircle,
   Loader2,
+  LogOut,
   Menu,
   Plus,
   Sparkles,
   Trash2,
   Upload,
+  User as UserIcon,
   X,
   Zap,
 } from "lucide-react";
 import type { SaveStatus } from "@/lib/useAutoSave";
 import { SUPPORTED_LANGUAGES, useLanguage } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "./Button";
 
 interface ToolbarProps {
@@ -55,18 +60,34 @@ export function Toolbar({
   onOpenHowItWorks,
 }: ToolbarProps) {
   const { language, setLanguage, t } = useLanguage();
+  const {
+    user,
+    openAuthModal,
+    signOut,
+    syncToCloud,
+    cloudSyncStatus,
+    isConfigured,
+  } = useAuth();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const exportMenuRef = useRef<HTMLDivElement>(null);
   const langMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isExportMenuOpen && !isLangMenuOpen && !isMobileMenuOpen) return;
+    if (
+      !isExportMenuOpen &&
+      !isLangMenuOpen &&
+      !isUserMenuOpen &&
+      !isMobileMenuOpen
+    )
+      return;
     const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
       if (
@@ -84,6 +105,13 @@ export function Toolbar({
         setIsLangMenuOpen(false);
       }
       if (
+        isUserMenuOpen &&
+        userMenuRef.current &&
+        !userMenuRef.current.contains(target)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+      if (
         isMobileMenuOpen &&
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(target)
@@ -97,11 +125,25 @@ export function Toolbar({
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("touchstart", handleOutsideClick);
     };
-  }, [isExportMenuOpen, isLangMenuOpen, isMobileMenuOpen]);
+  }, [isExportMenuOpen, isLangMenuOpen, isUserMenuOpen, isMobileMenuOpen]);
 
   const currentLangMeta =
     SUPPORTED_LANGUAGES.find((l) => l.code === language) ??
     SUPPORTED_LANGUAGES[0];
+
+  const userName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email?.split("@")[0] ||
+    "User";
+
+  const userInitials =
+    userName
+      .split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
 
   return (
     <>
@@ -377,6 +419,111 @@ export function Toolbar({
                 </div>
               )}
             </div>
+
+            {/* Módulo de Autenticación / Perfil de Usuario (Escritorio) */}
+            {!user ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setIsExportMenuOpen(false);
+                  setIsLangMenuOpen(false);
+                  openAuthModal("login");
+                }}
+                title={t.authSignInTitle}
+              >
+                <UserIcon className="h-3.5 w-3.5 text-slate-500" />
+                <span className="hidden md:inline">{t.authSignInTab}</span>
+              </Button>
+            ) : (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsExportMenuOpen(false);
+                    setIsLangMenuOpen(false);
+                    setIsUserMenuOpen((prev) => !prev);
+                  }}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-200/90 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  title={user.email || userName}
+                >
+                  <div className="relative flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-600 text-[10px] font-bold text-white shadow-xs">
+                    {userInitials}
+                    <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+                  </div>
+                  <span className="hidden md:inline max-w-[90px] truncate">
+                    {userName}
+                  </span>
+                  <ChevronDown
+                    className={`h-3 w-3 text-slate-400 transition-transform duration-150 ${
+                      isUserMenuOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200/90 bg-white/98 p-2 shadow-xl shadow-slate-900/10 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-3 py-2 border-b border-slate-100">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                        {t.authSignedInAs}
+                      </div>
+                      <div className="text-xs font-bold text-slate-800 truncate mt-0.5">
+                        {userName}
+                      </div>
+                      <div className="text-[11px] text-slate-500 truncate">
+                        {user.email}
+                      </div>
+                      {!isConfigured && (
+                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-medium">
+                          {t.authDemoModeBadge}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="p-1 space-y-1">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await syncToCloud();
+                        }}
+                        disabled={cloudSyncStatus === "syncing"}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100/80 cursor-pointer disabled:opacity-60"
+                      >
+                        {cloudSyncStatus === "syncing" ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-indigo-600 shrink-0" />
+                        ) : cloudSyncStatus === "synced" ? (
+                          <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                        ) : (
+                          <Cloud className="h-4 w-4 text-indigo-600 shrink-0" />
+                        )}
+                        <div className="truncate">
+                          <div>{t.authCloudSaveBtn}</div>
+                          <div className="text-[10px] text-slate-400 font-normal">
+                            {cloudSyncStatus === "syncing"
+                              ? t.authCloudSyncing
+                              : cloudSyncStatus === "synced"
+                              ? t.authCloudSynced
+                              : "Respaldar en cuenta"}
+                          </div>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          signOut();
+                        }}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 cursor-pointer"
+                      >
+                        <LogOut className="h-4 w-4 shrink-0" />
+                        <div>{t.authSignOutBtn}</div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Botón Nueva Idea (Táctil >= 44x44px en móvil) */}
@@ -433,6 +580,85 @@ export function Toolbar({
                       );
                     })}
                   </div>
+                </div>
+
+                <div className="my-1 border-t border-slate-100" />
+
+                {/* Perfil / Autenticación en móvil */}
+                <div className="px-2 py-1">
+                  {!user ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        openAuthModal("login");
+                      }}
+                      className="flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-xs font-medium text-indigo-700 bg-indigo-50/70 active:bg-indigo-100"
+                    >
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white shrink-0">
+                        <UserIcon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="font-semibold">{t.authSignInTab}</div>
+                        <div className="text-[10px] text-indigo-500 font-normal">
+                          {t.authModalSubtitle}
+                        </div>
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-2.5">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white shrink-0">
+                          {userInitials}
+                          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-bold text-slate-800 truncate">
+                            {userName}
+                          </div>
+                          <div className="text-[10px] text-slate-500 truncate">
+                            {user.email}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await syncToCloud();
+                          }}
+                          disabled={cloudSyncStatus === "syncing"}
+                          className="flex min-h-[36px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-white border border-slate-200 px-2 py-1 text-[11px] font-semibold text-slate-700 active:bg-slate-100 disabled:opacity-60"
+                        >
+                          {cloudSyncStatus === "syncing" ? (
+                            <Loader2 className="h-3 w-3 animate-spin text-indigo-600" />
+                          ) : cloudSyncStatus === "synced" ? (
+                            <Check className="h-3 w-3 text-emerald-600" />
+                          ) : (
+                            <Cloud className="h-3 w-3 text-indigo-600" />
+                          )}
+                          <span>
+                            {cloudSyncStatus === "synced"
+                              ? "¡Guardado!"
+                              : t.authCloudSaveBtn}
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            signOut();
+                          }}
+                          className="flex min-h-[36px] items-center justify-center rounded-lg bg-rose-50 border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-600 active:bg-rose-100"
+                          title={t.authSignOutBtn}
+                        >
+                          <LogOut className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="my-1 border-t border-slate-100" />

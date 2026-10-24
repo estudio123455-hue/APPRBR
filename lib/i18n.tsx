@@ -132,6 +132,38 @@ export interface Dictionary {
   guideStep4Title: string;
   guideStep4Desc: string;
   guideStep4Highlights: string[];
+  // Auth
+  authSignInTab: string;
+  authSignUpTab: string;
+  authRecoveryTab: string;
+  authModalTitle: string;
+  authModalSubtitle: string;
+  authEmailLabel: string;
+  authEmailPlaceholder: string;
+  authPasswordLabel: string;
+  authPasswordPlaceholder: string;
+  authNameLabel: string;
+  authNamePlaceholder: string;
+  authSignInBtn: string;
+  authSignUpBtn: string;
+  authRecoveryBtn: string;
+  authContinueWithGoogle: string;
+  authContinueWithGithub: string;
+  authDontHaveAccount: string;
+  authAlreadyHaveAccount: string;
+  authForgotPasswordLink: string;
+  authBackToSignIn: string;
+  authSignOutBtn: string;
+  authCloudSaveBtn: string;
+  authCloudSyncing: string;
+  authCloudSynced: string;
+  authCloudSyncError: string;
+  authGuestNotice: string;
+  authDemoModeBadge: string;
+  authRecoverySuccess: string;
+  authConfirmationEmailNotice: string;
+  authSignInTitle: string;
+  authSignedInAs: string;
 }
 
 export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
@@ -275,6 +307,38 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       "Exportación Markdown: descarga tu mapa estructurado listo para Notion u Obsidian.",
       "Backup JSON completo: guarda y restaura lienzos enteros en cualquier dispositivo.",
     ],
+    // Auth
+    authSignInTab: "Iniciar Sesión",
+    authSignUpTab: "Crear Cuenta",
+    authRecoveryTab: "Recuperar",
+    authModalTitle: "Tu Cuenta en Mind Diary",
+    authModalSubtitle: "Accede para sincronizar tus tableros en la nube en cualquier dispositivo.",
+    authEmailLabel: "Correo Electrónico",
+    authEmailPlaceholder: "nombre@ejemplo.com",
+    authPasswordLabel: "Contraseña",
+    authPasswordPlaceholder: "••••••••",
+    authNameLabel: "Nombre Completo",
+    authNamePlaceholder: "Alex Rivera",
+    authSignInBtn: "Iniciar Sesión",
+    authSignUpBtn: "Crear Cuenta",
+    authRecoveryBtn: "Enviar Enlace de Recuperación",
+    authContinueWithGoogle: "Continuar con Google",
+    authContinueWithGithub: "Continuar con GitHub",
+    authDontHaveAccount: "¿No tienes una cuenta?",
+    authAlreadyHaveAccount: "¿Ya tienes cuenta?",
+    authForgotPasswordLink: "¿Olvidaste tu contraseña?",
+    authBackToSignIn: "Volver a Iniciar Sesión",
+    authSignOutBtn: "Cerrar Sesión",
+    authCloudSaveBtn: "Sincronizar en la Nube",
+    authCloudSyncing: "Sincronizando...",
+    authCloudSynced: "¡Tablero respaldado en la nube!",
+    authCloudSyncError: "Error al sincronizar con la nube",
+    authGuestNotice: "Modo Invitado activo: tus cambios se guardan localmente en este navegador.",
+    authDemoModeBadge: "Modo Demo Supabase",
+    authRecoverySuccess: "¡Enlace enviado! Revisa tu bandeja de entrada para restablecer tu contraseña.",
+    authConfirmationEmailNotice: "¡Cuenta creada! Revisa tu correo electrónico para confirmar tu registro.",
+    authSignInTitle: "Acceso / Perfil",
+    authSignedInAs: "Conectado como",
   },
   en: {
     appSubtitle: "AI Studio",
@@ -416,6 +480,38 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       "Markdown export: clean hierarchical document ready for Notion or Obsidian.",
       "Full JSON backup: save and restore your entire map on any device.",
     ],
+    // Auth
+    authSignInTab: "Sign In",
+    authSignUpTab: "Create Account",
+    authRecoveryTab: "Recover",
+    authModalTitle: "Your Mind Diary Account",
+    authModalSubtitle: "Sign in to synchronize your mental boards to the cloud across devices.",
+    authEmailLabel: "Email Address",
+    authEmailPlaceholder: "name@example.com",
+    authPasswordLabel: "Password",
+    authPasswordPlaceholder: "••••••••",
+    authNameLabel: "Full Name",
+    authNamePlaceholder: "Alex Rivera",
+    authSignInBtn: "Sign In",
+    authSignUpBtn: "Create Account",
+    authRecoveryBtn: "Send Recovery Link",
+    authContinueWithGoogle: "Continue with Google",
+    authContinueWithGithub: "Continue with GitHub",
+    authDontHaveAccount: "Don't have an account?",
+    authAlreadyHaveAccount: "Already have an account?",
+    authForgotPasswordLink: "Forgot your password?",
+    authBackToSignIn: "Back to Sign In",
+    authSignOutBtn: "Sign Out",
+    authCloudSaveBtn: "Sync to Cloud",
+    authCloudSyncing: "Syncing...",
+    authCloudSynced: "Board safely backed up to cloud!",
+    authCloudSyncError: "Error syncing with cloud",
+    authGuestNotice: "Guest Mode active: your boards are stored locally in this browser.",
+    authDemoModeBadge: "Supabase Demo Mode",
+    authRecoverySuccess: "Link sent! Check your inbox to reset your password.",
+    authConfirmationEmailNotice: "Account created! Check your email to confirm registration.",
+    authSignInTitle: "Sign In / Profile",
+    authSignedInAs: "Signed in as",
   },
   fr: {
     appSubtitle: "Studio IA",
@@ -557,6 +653,38 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       "Export Markdown : document hiérarchisé prêt pour Notion ou Obsidian.",
       "Backup JSON complet : sauvegardez et restaurez vos cartes sur n'importe quel appareil.",
     ],
+    // Auth
+    authSignInTab: "Connexion",
+    authSignUpTab: "Inscription",
+    authRecoveryTab: "Récupérer",
+    authModalTitle: "Votre Compte Mind Diary",
+    authModalSubtitle: "Connectez-vous pour synchroniser vos tableaux dans le cloud sur tous vos appareils.",
+    authEmailLabel: "Adresse Email",
+    authEmailPlaceholder: "nom@exemple.com",
+    authPasswordLabel: "Mot de passe",
+    authPasswordPlaceholder: "••••••••",
+    authNameLabel: "Nom Complet",
+    authNamePlaceholder: "Alex Rivera",
+    authSignInBtn: "Se Connecter",
+    authSignUpBtn: "Créer un Compte",
+    authRecoveryBtn: "Envoyer le Lien de Récupération",
+    authContinueWithGoogle: "Continuer avec Google",
+    authContinueWithGithub: "Continuer avec GitHub",
+    authDontHaveAccount: "Pas encore de compte ?",
+    authAlreadyHaveAccount: "Vous avez déjà un compte ?",
+    authForgotPasswordLink: "Mot de passe oublié ?",
+    authBackToSignIn: "Retour à la Connexion",
+    authSignOutBtn: "Déconnexion",
+    authCloudSaveBtn: "Synchroniser dans le Cloud",
+    authCloudSyncing: "Synchronisation...",
+    authCloudSynced: "Tableau sauvegardé dans le cloud !",
+    authCloudSyncError: "Erreur de synchronisation cloud",
+    authGuestNotice: "Mode Invité actif : vos cartes sont enregistrées localement dans ce navigateur.",
+    authDemoModeBadge: "Mode Démo Supabase",
+    authRecoverySuccess: "Lien envoyé ! Consultez votre boîte de réception pour réinitialiser votre mot de passe.",
+    authConfirmationEmailNotice: "Compte créé ! Vérifiez vos e-mails pour confirmer votre inscription.",
+    authSignInTitle: "Connexion / Profil",
+    authSignedInAs: "Connecté en tant que",
   },
   pt: {
     appSubtitle: "AI Studio",
@@ -698,6 +826,38 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       "Exportação Markdown: arquivo pronto para documentação e Obsidian.",
       "Backup JSON completo: salve e recupere seus mapas em qualquer dispositivo.",
     ],
+    // Auth
+    authSignInTab: "Entrar",
+    authSignUpTab: "Criar Conta",
+    authRecoveryTab: "Recuperar",
+    authModalTitle: "Sua Conta no Mind Diary",
+    authModalSubtitle: "Entre para sincronizar seus mapas mentais na nuvem em qualquer dispositivo.",
+    authEmailLabel: "E-mail",
+    authEmailPlaceholder: "nome@exemplo.com",
+    authPasswordLabel: "Senha",
+    authPasswordPlaceholder: "••••••••",
+    authNameLabel: "Nome Completo",
+    authNamePlaceholder: "Alex Rivera",
+    authSignInBtn: "Entrar",
+    authSignUpBtn: "Criar Conta",
+    authRecoveryBtn: "Enviar Link de Recuperação",
+    authContinueWithGoogle: "Continuar com o Google",
+    authContinueWithGithub: "Continuar com o GitHub",
+    authDontHaveAccount: "Não tem uma conta?",
+    authAlreadyHaveAccount: "Já tem uma conta?",
+    authForgotPasswordLink: "Esqueceu sua senha?",
+    authBackToSignIn: "Voltar para o Login",
+    authSignOutBtn: "Sair da Conta",
+    authCloudSaveBtn: "Sincronizar na Nuvem",
+    authCloudSyncing: "Sincronizando...",
+    authCloudSynced: "Mapa salvo na nuvem com segurança!",
+    authCloudSyncError: "Erro ao sincronizar com a nuvem",
+    authGuestNotice: "Modo Convidado ativo: seus dados ficam salvos localmente neste navegador.",
+    authDemoModeBadge: "Modo Demo Supabase",
+    authRecoverySuccess: "Link enviado! Verifique seu e-mail para redefinir a senha.",
+    authConfirmationEmailNotice: "Conta criada! Verifique seu e-mail para confirmar seu cadastro.",
+    authSignInTitle: "Entrar / Perfil",
+    authSignedInAs: "Conectado como",
   },
   de: {
     appSubtitle: "KI-Studio",
@@ -839,6 +999,38 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       "Markdown-Export: hierarchisches Dokument für Notion oder Obsidian.",
       "Vollständiges JSON-Backup: sichern und wiederherstellen auf jedem Gerät.",
     ],
+    // Auth
+    authSignInTab: "Anmelden",
+    authSignUpTab: "Konto erstellen",
+    authRecoveryTab: "Wiederherstellen",
+    authModalTitle: "Dein Mind Diary Konto",
+    authModalSubtitle: "Melde dich an, um Mindmaps geräteübergreifend in der Cloud zu synchronisieren.",
+    authEmailLabel: "E-Mail-Adresse",
+    authEmailPlaceholder: "name@beispiel.de",
+    authPasswordLabel: "Passwort",
+    authPasswordPlaceholder: "••••••••",
+    authNameLabel: "Vollständiger Name",
+    authNamePlaceholder: "Alex Rivera",
+    authSignInBtn: "Anmelden",
+    authSignUpBtn: "Konto erstellen",
+    authRecoveryBtn: "Wiederherstellungslink senden",
+    authContinueWithGoogle: "Weiter mit Google",
+    authContinueWithGithub: "Weiter mit GitHub",
+    authDontHaveAccount: "Noch kein Konto?",
+    authAlreadyHaveAccount: "Bereits registriert?",
+    authForgotPasswordLink: "Passwort vergessen?",
+    authBackToSignIn: "Zurück zur Anmeldung",
+    authSignOutBtn: "Abmelden",
+    authCloudSaveBtn: "In Cloud synchronisieren",
+    authCloudSyncing: "Synchronisieren...",
+    authCloudSynced: "Mindmap sicher in der Cloud gespeichert!",
+    authCloudSyncError: "Fehler beim Cloud-Abgleich",
+    authGuestNotice: "Gast-Modus aktiv: Deine Mindmaps werden lokal in diesem Browser gespeichert.",
+    authDemoModeBadge: "Supabase Demo-Modus",
+    authRecoverySuccess: "Link gesendet! Überprüfe dein Postfach, um das Passwort zurückzusetzen.",
+    authConfirmationEmailNotice: "Konto erstellt! Bestätige deine E-Mail, um die Registrierung abzuschließen.",
+    authSignInTitle: "Anmeldung / Profil",
+    authSignedInAs: "Angemeldet als",
   },
 };
 
