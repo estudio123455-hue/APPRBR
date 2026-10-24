@@ -1,14 +1,14 @@
 import type { NextConfig } from "next";
 
+const isVercel = Boolean(process.env.VERCEL);
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
-  output: "export",
-  basePath: isProd ? "/APPRBR" : "",
-  assetPrefix: isProd ? "/APPRBR/" : "",
-  trailingSlash: true,
+  ...(isVercel ? {} : { output: "export", trailingSlash: true }),
+  basePath: isVercel ? "" : isProd ? "/APPRBR" : "",
+  assetPrefix: isVercel ? "" : isProd ? "/APPRBR/" : "",
   images: {
-    unoptimized: true,
+    unoptimized: !isVercel,
   },
   turbopack: {
     rules: {
