@@ -96,7 +96,7 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
 
   return (
     <div
-      className={`group relative w-64 sm:w-72 max-w-[85vw] rounded-2xl border bg-white p-3.5 sm:p-4 transition-all duration-150 ${
+      className={`group relative w-[272px] max-w-[85vw] sm:w-72 rounded-2xl border bg-white p-3.5 sm:p-4 transition-all duration-150 ${
         palette.border
       } ${
         selected
@@ -109,11 +109,11 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
         className={`absolute top-0 right-4 left-4 h-1 rounded-b-full ${palette.accent}`}
       />
 
-      {/* Handle de entrada (optimizado para toque en móvil) */}
+      {/* Handle de entrada (con área táctil expandida para móvil) */}
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-4 !w-4 sm:!h-3 sm:!w-3 !-left-2 sm:!-left-1.5 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500 active:!bg-blue-600"
+        className="!h-4 !w-4 sm:!h-3 sm:!w-3 !-left-2 sm:!-left-1.5 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500 active:!bg-blue-600 before:absolute before:-inset-2.5 before:content-['']"
       />
 
       {/* Cabecera: Categoría y acciones táctiles (IA + Editar + Eliminar) */}
@@ -299,11 +299,11 @@ function IdeaNodeCardComponent({ data, selected }: NodeProps<IdeaNodeData>) {
         </div>
       )}
 
-      {/* Handle de salida (optimizado para toque en móvil) */}
+      {/* Handle de salida (con área táctil expandida para móvil) */}
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-4 !w-4 sm:!h-3 sm:!w-3 !-right-2 sm:!-right-1.5 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500 active:!bg-blue-600"
+        className="!h-4 !w-4 sm:!h-3 sm:!w-3 !-right-2 sm:!-right-1.5 !border-2 !border-white !bg-slate-400 transition-colors group-hover:!bg-blue-500 active:!bg-blue-600 before:absolute before:-inset-2.5 before:content-['']"
       />
     </div>
   );

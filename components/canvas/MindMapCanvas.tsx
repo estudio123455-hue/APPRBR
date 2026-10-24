@@ -499,9 +499,9 @@ function MindMapCanvasInner() {
         panOnDrag={true}
         zoomOnPinch={true}
         zoomOnDoubleClick={false}
-        preventScrolling={true}
+        preventScrolling={false}
         fitView
-        fitViewOptions={{ padding: 0.25 }}
+        fitViewOptions={{ padding: 0.3 }}
         minZoom={0.2}
         maxZoom={2}
         proOptions={{ hideAttribution: false }}

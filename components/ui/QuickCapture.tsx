@@ -125,6 +125,7 @@ export function QuickCapture({
           <input
             ref={inputRef}
             type="text"
+            enterKeyHint="done"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={(e) => {
