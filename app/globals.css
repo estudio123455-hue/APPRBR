@@ -1,26 +1,74 @@
 @import "tailwindcss";
+@import "reactflow/dist/style.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta Minimalista Moderna: Fondo Slate/Zinc claro y acentos azules sutiles */
+  --background: #f8fafc;        /* slate-50 */
+  --surface: #ffffff;           /* blanco puro para tarjetas y paneles */
+  --surface-muted: #f1f5f9;     /* slate-100 */
+  --foreground: #0f172a;        /* slate-900 */
+  --foreground-muted: #64748b;  /* slate-500 */
+  --border-subtle: #e2e8f0;     /* slate-200 */
+
+  /* Acento Azul Sutil */
+  --accent-primary: #2563eb;    /* blue-600 */
+  --accent-hover: #1d4ed8;      /* blue-700 */
+  --accent-soft: #eff6ff;       /* blue-50 */
+  --accent-border: #bfdbfe;     /* blue-200 */
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-border: var(--accent-border);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Ajustes minimalistas para controles de React Flow */
+.react-flow__controls {
+  box-shadow: 0 4px 12px -2px rgb(15 23 42 / 0.06) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(8px);
+}
+
+.react-flow__controls-button {
+  border-bottom: 1px solid #f1f5f9 !important;
+  background: transparent !important;
+  fill: #475569 !important;
+  transition: background-color 150ms ease;
+}
+
+.react-flow__controls-button:hover {
+  background: #f8fafc !important;
+  fill: #2563eb !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #2563eb !important;
+  stroke-width: 2.5px !important;
+}
+
+.react-flow__attribution {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  font-size: 10px !important;
 }
