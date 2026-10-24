@@ -37,7 +37,7 @@ jobs:
         env:
           NODE_ENV: production
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || vars.NEXT_PUBLIC_SUPABASE_URL || 'https://uhoqlbzlurltevzntcdg.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVob3FsYnpsdXJsdGV2em50Y2RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NjI4OTcsImV4cCI6MjEwODQzODg5N30.pEoaGC5sctkC55aNddMdCNxAZnqeTzDyohnaJ6wY0MA' }}
         run: npm run build
 
       - name: Upload static artifact from out/
