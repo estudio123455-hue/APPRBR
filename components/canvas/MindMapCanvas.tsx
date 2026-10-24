@@ -52,6 +52,7 @@ import { Toolbar } from "@/components/ui/Toolbar";
 import { NodeModal } from "@/components/ui/NodeModal";
 import { QuickCapture } from "@/components/ui/QuickCapture";
 import { ConfirmClearModal } from "@/components/ui/ConfirmClearModal";
+import { HowItWorksModal } from "@/components/ui/HowItWorksModal";
 
 interface ToastMessage {
   id: string;
@@ -64,6 +65,7 @@ function MindMapCanvasInner() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
   const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
@@ -360,16 +362,23 @@ function MindMapCanvasInner() {
         event.preventDefault();
         setIsModalOpen(false);
         setIsClearConfirmOpen(false);
+        setIsHowItWorksOpen(false);
         setIsQuickCaptureOpen((prev) => !prev);
         return;
       }
 
       // 2. Escape -> Cerrar modales o deseleccionar nodos y conexiones del lienzo
       if (event.key === "Escape") {
-        if (isQuickCaptureOpen || isModalOpen || isClearConfirmOpen) {
+        if (
+          isQuickCaptureOpen ||
+          isModalOpen ||
+          isClearConfirmOpen ||
+          isHowItWorksOpen
+        ) {
           setIsQuickCaptureOpen(false);
           setIsModalOpen(false);
           setIsClearConfirmOpen(false);
+          setIsHowItWorksOpen(false);
           return;
         }
         if (!isEditableTarget) {
@@ -391,7 +400,8 @@ function MindMapCanvasInner() {
         isEditableTarget ||
         isQuickCaptureOpen ||
         isModalOpen ||
-        isClearConfirmOpen
+        isClearConfirmOpen ||
+        isHowItWorksOpen
       ) {
         return;
       }
@@ -439,6 +449,7 @@ function MindMapCanvasInner() {
     isQuickCaptureOpen,
     isModalOpen,
     isClearConfirmOpen,
+    isHowItWorksOpen,
     setNodes,
     setEdges,
   ]);
@@ -589,6 +600,7 @@ function MindMapCanvasInner() {
         onExportJson={handleExportJson}
         onImportJson={handleImportJson}
         onRequestClearCanvas={() => setIsClearConfirmOpen(true)}
+        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
       />
 
       <ReactFlow
@@ -681,6 +693,11 @@ function MindMapCanvasInner() {
         onClose={() => setIsClearConfirmOpen(false)}
         onClearEmpty={handleClearEmpty}
         onResetTemplate={handleResetTemplate}
+      />
+
+      <HowItWorksModal
+        isOpen={isHowItWorksOpen}
+        onClose={() => setIsHowItWorksOpen(false)}
       />
     </div>
   );

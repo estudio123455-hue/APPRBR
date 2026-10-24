@@ -106,6 +106,32 @@ export interface Dictionary {
   // Categories & Colors
   categories: Record<IdeaCategory, string>;
   colors: Record<IdeaNodeColor, string>;
+  // Guide / How It Works
+  howItWorksBtn: string;
+  howItWorksTitle: string;
+  howItWorksSubtitle: string;
+  backToCanvasBtn: string;
+  viewFullGuideBtn: string;
+  stepLabel: string;
+  prevStepBtn: string;
+  nextStepBtn: string;
+  closeGuideBtn: string;
+  guideStep1Tab: string;
+  guideStep1Title: string;
+  guideStep1Desc: string;
+  guideStep1Highlights: string[];
+  guideStep2Tab: string;
+  guideStep2Title: string;
+  guideStep2Desc: string;
+  guideStep2Highlights: string[];
+  guideStep3Tab: string;
+  guideStep3Title: string;
+  guideStep3Desc: string;
+  guideStep3Highlights: string[];
+  guideStep4Tab: string;
+  guideStep4Title: string;
+  guideStep4Desc: string;
+  guideStep4Highlights: string[];
 }
 
 export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
@@ -202,6 +228,53 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       rose: "Rosa",
       violet: "Violeta",
     },
+    // Guide / How It Works
+    howItWorksBtn: "Cómo funciona",
+    howItWorksTitle: "Guía Interactiva de Mind Diary",
+    howItWorksSubtitle:
+      "Aprende a capturar ideas, organizar ramas visuales e impulsar tu creatividad con IA.",
+    backToCanvasBtn: "← Volver al Lienzo",
+    viewFullGuideBtn: "Ver Guía Completa →",
+    stepLabel: "Paso",
+    prevStepBtn: "Anterior",
+    nextStepBtn: "Siguiente",
+    closeGuideBtn: "Entendido, ir al lienzo",
+    guideStep1Tab: "Lienzo & Ramas",
+    guideStep1Title: "Lienzo Infinito y Colorimetría Jerárquica",
+    guideStep1Desc:
+      "Organiza pensamientos en un lienzo interactivo libre. Conecta ideas arrastrando desde los puntos laterales y observa cómo las ramas heredan armónicamente el color del tema principal.",
+    guideStep1Highlights: [
+      "Arrastra los handles laterales para crear conexiones dirigidas estilo MindNode.",
+      "Usa la paleta en la cabecera para cambiar el color de una rama y sus derivadas.",
+      "Edita el título o contenido al instante con un solo clic sobre el texto.",
+    ],
+    guideStep2Tab: "Captura & Voz",
+    guideStep2Title: "Captura Rápida Instantánea y Dictado",
+    guideStep2Desc:
+      "Captura pensamientos sin fricción. Pulsa Ctrl+K o toca el botón flotante '+' en tu celular para crear una idea en el centro de tu pantalla.",
+    guideStep2Highlights: [
+      "Sintaxis rápida: escribe 'Título: Contenido #etiqueta' y presiona Enter.",
+      "Micrófono en vivo: dicta por voz con transcripción automática en tu idioma.",
+      "Atajo global Ctrl+K (o Cmd+K en Mac) disponible en cualquier momento.",
+    ],
+    guideStep3Tab: "Asistente IA",
+    guideStep3Title: "Desbloqueo Creativo y Cámara Visual IA",
+    guideStep3Desc:
+      "Supera el bloqueo mental con el asistente integrado. Desglosa conceptos en sub-ideas, descubre ángulos contrarios o toma una foto para extraer ideas clave.",
+    guideStep3Highlights: [
+      "✨ Desglosar sub-ideas: despliega de 3 a 4 pasos lógicos organizados en abanico.",
+      "🎯 Anti-bloqueo: genera preguntas provocadoras y perspectivas inversas.",
+      "📸 Referencias con Cámara: adjunta fotos y pulsa 'Analizar con IA'.",
+    ],
+    guideStep4Tab: "Zen & Exportar",
+    guideStep4Title: "Modo Flujo Zen y Respaldo Multiplataforma",
+    guideStep4Desc:
+      "Entra en concentración profunda ocultando la interfaz con Shift+Z. Cuando termines, exporta a tus herramientas favoritas o guarda una copia de seguridad.",
+    guideStep4Highlights: [
+      "Modo Zen (Shift+Z): oculta barras y controles para trabajar sin distracciones.",
+      "Exportación Markdown: descarga tu mapa estructurado listo para Notion u Obsidian.",
+      "Backup JSON completo: guarda y restaura lienzos enteros en cualquier dispositivo.",
+    ],
   },
   en: {
     appSubtitle: "AI Studio",
@@ -296,6 +369,53 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       rose: "Rose",
       violet: "Violet",
     },
+    // Guide / How It Works
+    howItWorksBtn: "How it works",
+    howItWorksTitle: "Mind Diary Interactive Guide",
+    howItWorksSubtitle:
+      "Master fast idea capture, hierarchical branch mapping, and AI-powered brainstorming.",
+    backToCanvasBtn: "← Back to Canvas",
+    viewFullGuideBtn: "View Full Guide →",
+    stepLabel: "Step",
+    prevStepBtn: "Previous",
+    nextStepBtn: "Next",
+    closeGuideBtn: "Got it, back to canvas",
+    guideStep1Tab: "Canvas & Branches",
+    guideStep1Title: "Infinite Canvas & Hierarchical Colorimetry",
+    guideStep1Desc:
+      "Map out ideas freely in an interactive workspace. Connect thoughts by dragging side handles and watch child branches inherit parent theme colors.",
+    guideStep1Highlights: [
+      "Drag connection handles to build directional MindNode-style branches.",
+      "Pick a branch color from the card header to re-theme the entire sub-tree.",
+      "Click or double-click any title or description for instant inline editing.",
+    ],
+    guideStep2Tab: "Capture & Voice",
+    guideStep2Title: "Quick Capture & Voice Dictation",
+    guideStep2Desc:
+      "Capture thoughts at lightspeed. Hit Ctrl+K or tap the '+' floating button on your phone to drop an idea right in the center of your view.",
+    guideStep2Highlights: [
+      "Quick syntax: type 'Title: Description #tag' and hit Enter.",
+      "Live microphone: dictate notes with real-time speech-to-text in your language.",
+      "Global Ctrl+K (or Cmd+K on Mac) accessible from anywhere.",
+    ],
+    guideStep3Tab: "AI Assistant",
+    guideStep3Title: "Creative Unblocking & Camera Visual AI",
+    guideStep3Desc:
+      "Beat writer's block with the built-in AI assistant. Break ideas down into logical sub-steps, explore contrarian views, or analyze camera photos.",
+    guideStep3Highlights: [
+      "✨ Break down sub-ideas: spawns 3 to 4 fanned-out sub-ideas automatically.",
+      "🎯 Anti-block: suggests provocative questions and inverted perspectives.",
+      "📸 Camera Reference: attach photos and tap 'Analyze with AI'.",
+    ],
+    guideStep4Tab: "Zen & Export",
+    guideStep4Title: "Zen Flow Mode & Multi-Platform Export",
+    guideStep4Desc:
+      "Enter deep flow by toggling Shift+Z to hide all interface distractions. Export your work directly to Obsidian/Notion or take complete JSON backups.",
+    guideStep4Highlights: [
+      "Zen Mode (Shift+Z): hides toolbars and controls for pure focus.",
+      "Markdown export: clean hierarchical document ready for Notion or Obsidian.",
+      "Full JSON backup: save and restore your entire map on any device.",
+    ],
   },
   fr: {
     appSubtitle: "Studio IA",
@@ -390,6 +510,53 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       rose: "Rose",
       violet: "Violet",
     },
+    // Guide / How It Works
+    howItWorksBtn: "Comment ça marche",
+    howItWorksTitle: "Guide Interactif de Mind Diary",
+    howItWorksSubtitle:
+      "Apprenez à structurer vos idées, organiser vos branches et stimuler votre créativité avec l'IA.",
+    backToCanvasBtn: "← Retour au Canevas",
+    viewFullGuideBtn: "Voir le Guide Complet →",
+    stepLabel: "Étape",
+    prevStepBtn: "Précédent",
+    nextStepBtn: "Suivant",
+    closeGuideBtn: "Compris, aller au canevas",
+    guideStep1Tab: "Canevas & Branches",
+    guideStep1Title: "Canevas Infini et Colorimétrie Hiérarchique",
+    guideStep1Desc:
+      "Structurez vos pensées sur un espace interactif fluide. Reliez les nœuds et observez les sous-branches hériter harmonieusement de la couleur du thème.",
+    guideStep1Highlights: [
+      "Tirez les poignées latérales pour créer des liaisons style MindNode.",
+      "Changez la couleur d'une branche directement depuis l'en-tête de la carte.",
+      "Modifiez instantanément un titre ou une note d'un simple clic sur le texte.",
+    ],
+    guideStep2Tab: "Capture & Voix",
+    guideStep2Title: "Capture Éclair et Dictée Vocale",
+    guideStep2Desc:
+      "Capturez vos intuitions sans friction. Utilisez Ctrl+K ou le bouton '+' sur mobile pour poser une idée au centre de l'écran.",
+    guideStep2Highlights: [
+      "Syntaxe rapide : écrivez 'Titre : Note #tag' et tapez Entrée.",
+      "Microphone direct : dictez vos pensées avec transcription en temps réel.",
+      "Raccourci universel Ctrl+K (ou Cmd+K sur Mac) toujours disponible.",
+    ],
+    guideStep3Tab: "Assistant IA",
+    guideStep3Title: "Déblocage Créatif et Caméra Visuelle IA",
+    guideStep3Desc:
+      "Dépassez la page blanche grâce à l'IA. Décomposez une idée en sous-étapes, explorez des angles opposés ou prenez une photo pour en extraire l'essence.",
+    guideStep3Highlights: [
+      "✨ Décomposer en sous-idées : génère 3 à 4 étapes disposées en éventail.",
+      "🎯 Anti-blocage : propose des questions stimulantes et des perspectives inverses.",
+      "📸 Référence Visuelle : joignez des photos et cliquez sur 'Analyser avec l'IA'.",
+    ],
+    guideStep4Tab: "Zen & Export",
+    guideStep4Title: "Mode Zen Fluide et Sauvegarde Complète",
+    guideStep4Desc:
+      "Isolez-vous des distractions avec Shift+Z. Exportez vos travaux vers Notion ou Obsidian ou emportez une sauvegarde JSON intégrale.",
+    guideStep4Highlights: [
+      "Mode Zen (Shift+Z) : masque barres et commandes pour une concentration pure.",
+      "Export Markdown : document hiérarchisé prêt pour Notion ou Obsidian.",
+      "Backup JSON complet : sauvegardez et restaurez vos cartes sur n'importe quel appareil.",
+    ],
   },
   pt: {
     appSubtitle: "AI Studio",
@@ -484,6 +651,53 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       rose: "Rosa",
       violet: "Violeta",
     },
+    // Guide / How It Works
+    howItWorksBtn: "Como funciona",
+    howItWorksTitle: "Guia Interativo do Mind Diary",
+    howItWorksSubtitle:
+      "Descubra como estruturar pensamentos, criar ramos visuais e acelerar projetos com IA.",
+    backToCanvasBtn: "← Voltar à Tela",
+    viewFullGuideBtn: "Ver Guia Completo →",
+    stepLabel: "Passo",
+    prevStepBtn: "Anterior",
+    nextStepBtn: "Próximo",
+    closeGuideBtn: "Entendido, ir ao mapa",
+    guideStep1Tab: "Tela & Ramos",
+    guideStep1Title: "Tela Infinita e Colorimetria Hierárquica",
+    guideStep1Desc:
+      "Conecte conceitos livremente. Puxe os pontos laterais e veja as novas sub-ideias herdarem a cor temática do ramo principal.",
+    guideStep1Highlights: [
+      "Arraste as conexões para criar ramos direcionais estilo MindNode.",
+      "Altere a paleta no cabeçalho do cartão para redefinir a cor do ramo.",
+      "Edite o título ou conteúdo com um toque rápido sobre o texto.",
+    ],
+    guideStep2Tab: "Captura & Voz",
+    guideStep2Title: "Captura Rápida e Ditado por Voz",
+    guideStep2Desc:
+      "Capture pensamentos sem perder o ritmo. Use Ctrl+K no teclado ou o botão '+' no celular para soltar ideias no centro da vista.",
+    guideStep2Highlights: [
+      "Sintaxe rápida: escreva 'Título: Conteúdo #tag' e pressione Enter.",
+      "Microfone ao vivo: dite por voz com transcrição imediata em português.",
+      "Atalho Ctrl+K (ou Cmd+K no Mac) acessível de qualquer ponto.",
+    ],
+    guideStep3Tab: "Assistente IA",
+    guideStep3Title: "Desbloqueio Criativo e Câmera Visual IA",
+    guideStep3Desc:
+      "Vença qualquer bloqueio com o assistente inteligente. Desdobre passos práticos, questione pressupostos ou tire uma foto para gerar insights.",
+    guideStep3Highlights: [
+      "✨ Desdobrar sub-ideias: cria de 3 a 4 ideias conectadas em leque.",
+      "🎯 Anti-bloqueio: gera perguntas provocativas e perspectivas opostas.",
+      "📸 Câmera & Fotos: anexe imagens e toque em 'Analisar com IA'.",
+    ],
+    guideStep4Tab: "Zen & Exportar",
+    guideStep4Title: "Modo Foco Zen e Backup Multiplataforma",
+    guideStep4Desc:
+      "Elimine distrações com o atalho Shift+Z. Quando estiver pronto, exporte para o Notion/Obsidian ou faça backup em JSON.",
+    guideStep4Highlights: [
+      "Modo Zen (Shift+Z): esconde menus e botões para foco absoluto.",
+      "Exportação Markdown: arquivo pronto para documentação e Obsidian.",
+      "Backup JSON completo: salve e recupere seus mapas em qualquer dispositivo.",
+    ],
   },
   de: {
     appSubtitle: "KI-Studio",
@@ -578,6 +792,53 @@ export const TRANSLATIONS: Record<SupportedLanguage, Dictionary> = {
       rose: "Rosa",
       violet: "Violett",
     },
+    // Guide / How It Works
+    howItWorksBtn: "Wie es funktioniert",
+    howItWorksTitle: "Interaktive Mind Diary Anleitung",
+    howItWorksSubtitle:
+      "Ideen blitzschnell erfassen, visuelle Zweige aufbauen und Projekte mit KI beschleunigen.",
+    backToCanvasBtn: "← Zurück zur Leinwand",
+    viewFullGuideBtn: "Vollständige Anleitung →",
+    stepLabel: "Schritt",
+    prevStepBtn: "Zurück",
+    nextStepBtn: "Weiter",
+    closeGuideBtn: "Verstanden, zur Leinwand",
+    guideStep1Tab: "Leinwand & Zweige",
+    guideStep1Title: "Unendliche Leinwand & Hierarchische Farbgebung",
+    guideStep1Desc:
+      "Gedanken frei und flüssig strukturieren. Durch Ziehen der seitlichen Punkte verbinden sich Ideen und übernehmen automatisch die Farbe des Hauptzweigs.",
+    guideStep1Highlights: [
+      "Seitliche Punkte ziehen, um MindNode-artige Zweige zu erstellen.",
+      "Themenfarbe in der Kopfzeile wählen, um den gesamten Teilbaum einzufärben.",
+      "Titel und Notizen per Klick direkt im Knoten bearbeiten.",
+    ],
+    guideStep2Tab: "Erfassung & Stimme",
+    guideStep2Title: "Schnellerfassung & Spracheingabe",
+    guideStep2Desc:
+      "Blitzschnell Ideen festhalten. Strg+K auf der Tastatur oder '+' auf dem Smartphone platziert die Idee direkt in der Mitte der Ansicht.",
+    guideStep2Highlights: [
+      "Schnellsyntax: 'Titel: Notiz #tag' tippen und Enter drücken.",
+      "Echtzeit-Spracheingabe: direkt ins Textfeld diktieren.",
+      "Universeller Shortcut Strg+K (oder Cmd+K auf dem Mac) überall verfügbar.",
+    ],
+    guideStep3Tab: "KI-Assistent",
+    guideStep3Title: "Kreative Blockaden lösen & Foto-KI",
+    guideStep3Desc:
+      "Gedankliche Hürden mit der integrierten KI überwinden. Ideen fächerförmig aufschlüsseln, Gegenthesen prüfen oder Fotos analysieren.",
+    guideStep3Highlights: [
+      "✨ Teilideen aufschlüsseln: erstellt 3 bis 4 logische Teilschritte im Fächer.",
+      "🎯 Blockade-Löser: liefert provozierende Fragen und umgekehrte Blickwinkel.",
+      "📸 Kamera & Bildreferenzen: Fotos anhängen und 'Mit KI analysieren' wählen.",
+    ],
+    guideStep4Tab: "Zen & Export",
+    guideStep4Title: "Zen-Fokusmodus & Universeller Export",
+    guideStep4Desc:
+      "Tastenkombination Umschalt+Z blendet alle Menüs für ungestörtes Denken aus. Anschließend als Markdown oder vollständiges JSON exportieren.",
+    guideStep4Highlights: [
+      "Zen-Modus (Umschalt+Z): blendet die Oberfläche für absoluten Fokus aus.",
+      "Markdown-Export: hierarchisches Dokument für Notion oder Obsidian.",
+      "Vollständiges JSON-Backup: sichern und wiederherstellen auf jedem Gerät.",
+    ],
   },
 };
 

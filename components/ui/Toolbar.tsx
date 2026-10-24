@@ -11,6 +11,7 @@ import {
   FileCode2,
   FileText,
   Globe,
+  HelpCircle,
   Loader2,
   Menu,
   Plus,
@@ -36,6 +37,7 @@ interface ToolbarProps {
   onExportJson: () => void;
   onImportJson: (file: File) => void;
   onRequestClearCanvas: () => void;
+  onOpenHowItWorks?: () => void;
 }
 
 export function Toolbar({
@@ -50,6 +52,7 @@ export function Toolbar({
   onExportJson,
   onImportJson,
   onRequestClearCanvas,
+  onOpenHowItWorks,
 }: ToolbarProps) {
   const { language, setLanguage, t } = useLanguage();
 
@@ -259,6 +262,16 @@ export function Toolbar({
             <Button
               variant="ghost"
               size="sm"
+              onClick={onOpenHowItWorks}
+              title={t.howItWorksBtn}
+            >
+              <HelpCircle className="h-3.5 w-3.5 text-slate-500" />
+              <span className="hidden xl:inline">{t.howItWorksBtn}</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onToggleZenMode}
               title={`${t.zenBtn} (Shift+Z)`}
             >
@@ -441,6 +454,23 @@ export function Toolbar({
                     <div>{t.quickCaptureBtn}</div>
                     <div className="text-[10px] font-normal text-slate-400">
                       {t.quickCaptureCenterHint}
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenHowItWorks?.();
+                  }}
+                  className="flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-xs font-medium text-slate-700 active:bg-slate-100 hover:bg-slate-100/80"
+                >
+                  <HelpCircle className="h-4 w-4 text-slate-600 shrink-0" />
+                  <div>
+                    <div>{t.howItWorksBtn}</div>
+                    <div className="text-[10px] font-normal text-slate-400">
+                      Guía paso a paso y atajos
                     </div>
                   </div>
                 </button>
